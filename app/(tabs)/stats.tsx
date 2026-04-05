@@ -22,7 +22,12 @@ import {
 } from "@/lib/database";
 import { useHabits } from "@/store/habitsStore";
 
-function StatCard({ label, value, icon, colors }: {
+function StatCard({
+  label,
+  value,
+  icon,
+  colors,
+}: {
   label: string;
   value: string | number;
   icon: string;
@@ -32,12 +37,21 @@ function StatCard({ label, value, icon, colors }: {
     <View
       style={[
         statCardStyles.card,
-        { backgroundColor: colors.card, borderRadius: 16, borderColor: colors.border, borderWidth: 1 },
+        {
+          backgroundColor: colors.card,
+          borderRadius: 16,
+          borderColor: colors.border,
+          borderWidth: 1,
+        },
       ]}
     >
       <Feather name={icon as any} size={20} color={colors.primary} />
-      <Text style={[statCardStyles.value, { color: colors.foreground }]}>{value}</Text>
-      <Text style={[statCardStyles.label, { color: colors.mutedForeground }]}>{label}</Text>
+      <Text style={[statCardStyles.value, { color: colors.foreground }]}>
+        {value}
+      </Text>
+      <Text style={[statCardStyles.label, { color: colors.mutedForeground }]}>
+        {label}
+      </Text>
     </View>
   );
 }
@@ -48,7 +62,11 @@ const statCardStyles = StyleSheet.create({
   label: { fontSize: 12, textAlign: "center" },
 });
 
-function WeeklyBar({ completions, habitId, colors }: {
+function WeeklyBar({
+  completions,
+  habitId,
+  colors,
+}: {
   completions: any[];
   habitId: string;
   colors: ReturnType<typeof useColors>;
@@ -78,7 +96,9 @@ function WeeklyBar({ completions, habitId, colors }: {
               },
             ]}
           />
-          <Text style={[barStyles.label, { color: colors.mutedForeground }]}>{day.label}</Text>
+          <Text style={[barStyles.label, { color: colors.mutedForeground }]}>
+            {day.label}
+          </Text>
         </View>
       ))}
     </View>
@@ -98,11 +118,14 @@ export default function StatsScreen() {
   const { habits, completions } = useHabits();
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null);
 
-  const selectedHabit = habits.find((h) => h.id === selectedHabitId) ?? habits[0];
+  const selectedHabit =
+    habits.find((h) => h.id === selectedHabitId) ?? habits[0];
 
   const overallStats = useMemo(() => {
     const today = getTodayDate();
-    const completedToday = habits.filter((h) => isCompleted(completions, h.id, today)).length;
+    const completedToday = habits.filter((h) =>
+      isCompleted(completions, h.id, today),
+    ).length;
     const longestStreakAll = habits.reduce(
       (max, h) => Math.max(max, calculateLongestStreak(completions, h.id)),
       0,
@@ -124,7 +147,10 @@ export default function StatsScreen() {
     };
   }, [selectedHabit, completions]);
 
-  const allHeatmap = useMemo(() => getAllHabitsHeatmapData(completions, 26), [completions]);
+  const allHeatmap = useMemo(
+    () => getAllHabitsHeatmapData(completions, 26),
+    [completions],
+  );
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
@@ -141,26 +167,53 @@ export default function StatsScreen() {
         <Text style={[styles.title, { color: colors.foreground }]}>Stats</Text>
 
         <View style={styles.statsRow}>
-          <StatCard label="Today" value={`${overallStats.completedToday}/${habits.length}`} icon="check-circle" colors={colors} />
-          <StatCard label="Best Streak" value={`${overallStats.longestStreakAll}d`} icon="award" colors={colors} />
-          <StatCard label="Streak" value={`${overallStats.currentStreakAll}d`} icon="zap" colors={colors} />
+          <StatCard
+            label="Today"
+            value={`${overallStats.completedToday}/${habits.length}`}
+            icon="check-circle"
+            colors={colors}
+          />
+          <StatCard
+            label="Best Streak"
+            value={`${overallStats.longestStreakAll}d`}
+            icon="award"
+            colors={colors}
+          />
+          <StatCard
+            label="Streak"
+            value={`${overallStats.currentStreakAll}d`}
+            icon="zap"
+            colors={colors}
+          />
         </View>
 
-        <View style={[styles.card, { backgroundColor: colors.card, borderRadius: 20 }]}>
+        <View
+          style={[
+            styles.card,
+            { backgroundColor: colors.card, borderRadius: 20 },
+          ]}
+        >
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
             All Habits Activity
           </Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <Heatmap data={allHeatmap} />
-          </ScrollView>
+          <Heatmap data={allHeatmap} autoScrollToLatest />
         </View>
 
         {habits.length > 0 && (
-          <View style={[styles.card, { backgroundColor: colors.card, borderRadius: 20 }]}>
+          <View
+            style={[
+              styles.card,
+              { backgroundColor: colors.card, borderRadius: 20 },
+            ]}
+          >
             <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
               Per Habit
             </Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.selector}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.selector}
+            >
               {habits.map((h) => (
                 <Pressable
                   key={h.id}
@@ -179,7 +232,11 @@ export default function StatsScreen() {
                   <Feather
                     name={h.icon as any}
                     size={14}
-                    color={(selectedHabit?.id ?? habits[0]?.id) === h.id ? colors.primaryForeground : colors.mutedForeground}
+                    color={
+                      (selectedHabit?.id ?? habits[0]?.id) === h.id
+                        ? colors.primaryForeground
+                        : colors.mutedForeground
+                    }
                   />
                   <Text
                     style={[
@@ -202,32 +259,55 @@ export default function StatsScreen() {
               <>
                 <View style={styles.habitStatsRow}>
                   <View style={styles.habitStat}>
-                    <Text style={[styles.habitStatValue, { color: colors.primary }]}>
+                    <Text
+                      style={[styles.habitStatValue, { color: colors.primary }]}
+                    >
                       {habitStats.streak}
                     </Text>
-                    <Text style={[styles.habitStatLabel, { color: colors.mutedForeground }]}>
+                    <Text
+                      style={[
+                        styles.habitStatLabel,
+                        { color: colors.mutedForeground },
+                      ]}
+                    >
                       Current
                     </Text>
                   </View>
                   <View style={styles.habitStat}>
-                    <Text style={[styles.habitStatValue, { color: colors.primary }]}>
+                    <Text
+                      style={[styles.habitStatValue, { color: colors.primary }]}
+                    >
                       {habitStats.longest}
                     </Text>
-                    <Text style={[styles.habitStatLabel, { color: colors.mutedForeground }]}>
+                    <Text
+                      style={[
+                        styles.habitStatLabel,
+                        { color: colors.mutedForeground },
+                      ]}
+                    >
                       Best
                     </Text>
                   </View>
                   <View style={styles.habitStat}>
-                    <Text style={[styles.habitStatValue, { color: colors.primary }]}>
+                    <Text
+                      style={[styles.habitStatValue, { color: colors.primary }]}
+                    >
                       {habitStats.rate}%
                     </Text>
-                    <Text style={[styles.habitStatLabel, { color: colors.mutedForeground }]}>
+                    <Text
+                      style={[
+                        styles.habitStatLabel,
+                        { color: colors.mutedForeground },
+                      ]}
+                    >
                       30-day rate
                     </Text>
                   </View>
                 </View>
 
-                <Text style={[styles.weekLabel, { color: colors.mutedForeground }]}>
+                <Text
+                  style={[styles.weekLabel, { color: colors.mutedForeground }]}
+                >
                   Last 7 days
                 </Text>
                 <WeeklyBar
@@ -236,12 +316,16 @@ export default function StatsScreen() {
                   colors={colors}
                 />
 
-                <Text style={[styles.weekLabel, { color: colors.mutedForeground }]}>
+                <Text
+                  style={[styles.weekLabel, { color: colors.mutedForeground }]}
+                >
                   Last 6 months
                 </Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <Heatmap data={habitStats.heatmap} maxCount={1} />
-                </ScrollView>
+                <Heatmap
+                  autoScrollToLatest
+                  data={habitStats.heatmap}
+                  maxCount={1}
+                />
               </>
             )}
           </View>
@@ -250,8 +334,12 @@ export default function StatsScreen() {
         {habits.length === 0 && (
           <View style={styles.emptyState}>
             <Feather name="bar-chart-2" size={48} color={colors.border} />
-            <Text style={[styles.emptyTitle, { color: colors.foreground }]}>No data yet</Text>
-            <Text style={[styles.emptySubtitle, { color: colors.mutedForeground }]}>
+            <Text style={[styles.emptyTitle, { color: colors.foreground }]}>
+              No data yet
+            </Text>
+            <Text
+              style={[styles.emptySubtitle, { color: colors.mutedForeground }]}
+            >
               Add habits and start tracking to see your stats
             </Text>
           </View>

@@ -1,9 +1,12 @@
 import { Feather } from "@expo/vector-icons";
+import * as Clipboard from "expo-clipboard";
 import React, { useEffect, useState } from "react";
 import {
+  Alert,
   Platform,
   Pressable,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   useColorScheme,
@@ -13,7 +16,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ProBanner } from "@/components/ProBanner";
 import { useColors } from "@/hooks/useColors";
 import { useSubscription } from "@/lib/revenuecat";
+import { useHabits } from "@/store/habitsStore";
 import { useThemeStore } from "@/store/themeStore";
+import { useUser } from "@/store/userStore";
 
 function SettingsRow({
   icon,
@@ -75,6 +80,8 @@ export default function SettingsScreen() {
   const [showProBanner, setShowProBanner] = useState(false);
   const { isSubscribed, isLoading, offerings } = useSubscription();
   const { theme, setTheme, loadTheme } = useThemeStore();
+  const { habits } = useHabits();
+  const { userName } = useUser();
 
   useEffect(() => {
     loadTheme();
@@ -90,6 +97,59 @@ export default function SettingsScreen() {
 
   const themeLabel =
     theme === "system" ? "System" : theme === "dark" ? "Dark" : "Light";
+
+  const handleExportData = async () => {
+    try {
+      const exportData = {
+        user: {
+          name: userName,
+          exportedAt: new Date().toISOString(),
+        },
+        habits: habits.map((habit) => ({
+          id: habit.id,
+          name: habit.name,
+          color: habit.color,
+          icon: habit.icon,
+          createdAt: habit.createdAt,
+          frequency: habit.frequency,
+        })),
+        summary: {
+          totalHabits: habits.length,
+        },
+      };
+
+      const jsonString = JSON.stringify(exportData, null, 2);
+      const filename = `streakflow_export_${new Date().toISOString().split("T")[0]}.json`;
+
+      if (Platform.OS === "web") {
+        // Web export: download file
+        const blob = new Blob([jsonString], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      } else {
+        // Mobile export: use native share dialog
+        try {
+          await Share.share({
+            message: jsonString,
+            title: "Export StreakFlow Data",
+          });
+        } catch (error) {
+          // Fallback to clipboard if share fails
+          await Clipboard.setStringAsync(jsonString);
+          Alert.alert("Success", "Data copied to clipboard");
+        }
+      }
+    } catch (error) {
+      console.error("Export error:", error);
+      Alert.alert("Error", "Failed to export data. Please try again.");
+    }
+  };
 
   return (
     <>
@@ -270,6 +330,45 @@ export default function SettingsScreen() {
                 colors={colors}
               />
             )}
+          </View>
+
+          <View
+            style={[
+              styles.section,
+              { backgroundColor: colors.card, borderRadius: 16 },
+            ]}
+          >
+            <Text
+              style={[styles.sectionHeader, { color: colors.mutedForeground }]}
+            >
+              Data & Privacy
+            </Text>
+            <Pressable
+              onPress={handleExportData}
+              style={({ pressed }) => [
+                styles.row,
+                { opacity: pressed ? 0.7 : 1 },
+              ]}
+            >
+              <View
+                style={[
+                  styles.rowIcon,
+                  { backgroundColor: colors.primary + "22", borderRadius: 10 },
+                ]}
+              >
+                <Feather name="download" size={18} color={colors.primary} />
+              </View>
+              <Text style={[styles.rowLabel, { color: colors.foreground }]}>
+                Export Data
+              </Text>
+              <View style={styles.rowRight}>
+                <Feather
+                  name="chevron-right"
+                  size={16}
+                  color={colors.mutedForeground}
+                />
+              </View>
+            </Pressable>
           </View>
 
           <View

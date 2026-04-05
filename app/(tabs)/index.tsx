@@ -34,15 +34,26 @@ export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { habits, completions, toggleHabitCompletion, getTotalStreak, getStreakForHabit } = useHabits();
+  const {
+    habits,
+    completions,
+    toggleHabitCompletion,
+    getTotalStreak,
+    getStreakForHabit,
+  } = useHabits();
   const { isSubscribed } = useSubscription();
   const { userName } = useUser();
   const [showPro, setShowPro] = useState(false);
 
   const today = getTodayDate();
   const totalStreak = getTotalStreak();
-  const heatmapData = useMemo(() => getAllHabitsHeatmapData(completions, 26), [completions]);
-  const completedToday = habits.filter((h) => isCompleted(completions, h.id, today)).length;
+  const heatmapData = useMemo(
+    () => getAllHabitsHeatmapData(completions, 26),
+    [completions],
+  );
+  const completedToday = habits.filter((h) =>
+    isCompleted(completions, h.id, today),
+  ).length;
 
   const handleAddHabit = () => {
     if (!isSubscribed && habits.length >= FREE_HABIT_LIMIT) {
@@ -67,7 +78,9 @@ export default function HomeScreen() {
         >
           <View style={styles.topRow}>
             <View>
-              <Text style={[styles.greeting, { color: colors.mutedForeground }]}>
+              <Text
+                style={[styles.greeting, { color: colors.mutedForeground }]}
+              >
                 {getGreeting()}
               </Text>
               <Text style={[styles.title, { color: colors.foreground }]}>
@@ -77,10 +90,15 @@ export default function HomeScreen() {
             {!isSubscribed && (
               <Pressable
                 onPress={() => setShowPro(true)}
-                style={[styles.proBadge, { backgroundColor: colors.primary + "22", borderRadius: 20 }]}
+                style={[
+                  styles.proBadge,
+                  { backgroundColor: colors.primary + "22", borderRadius: 20 },
+                ]}
               >
                 <Feather name="star" size={14} color={colors.primary} />
-                <Text style={[styles.proBadgeText, { color: colors.primary }]}>Pro</Text>
+                <Text style={[styles.proBadgeText, { color: colors.primary }]}>
+                  Pro
+                </Text>
               </Pressable>
             )}
           </View>
@@ -96,27 +114,57 @@ export default function HomeScreen() {
           >
             <View style={styles.streakContent}>
               <View>
-                <Text style={[styles.streakNumber, { color: colors.primaryForeground }]}>
+                <Text
+                  style={[
+                    styles.streakNumber,
+                    { color: colors.primaryForeground },
+                  ]}
+                >
                   {totalStreak}
                 </Text>
-                <Text style={[styles.streakLabel, { color: colors.primaryForeground + "CC" }]}>
+                <Text
+                  style={[
+                    styles.streakLabel,
+                    { color: colors.primaryForeground + "CC" },
+                  ]}
+                >
                   day streak
                 </Text>
               </View>
               <View style={styles.streakRight}>
                 <View style={styles.streakStat}>
-                  <Text style={[styles.streakStatNum, { color: colors.primaryForeground }]}>
+                  <Text
+                    style={[
+                      styles.streakStatNum,
+                      { color: colors.primaryForeground },
+                    ]}
+                  >
                     {completedToday}
                   </Text>
-                  <Text style={[styles.streakStatLabel, { color: colors.primaryForeground + "99" }]}>
+                  <Text
+                    style={[
+                      styles.streakStatLabel,
+                      { color: colors.primaryForeground + "99" },
+                    ]}
+                  >
                     done
                   </Text>
                 </View>
                 <View style={styles.streakStat}>
-                  <Text style={[styles.streakStatNum, { color: colors.primaryForeground }]}>
+                  <Text
+                    style={[
+                      styles.streakStatNum,
+                      { color: colors.primaryForeground },
+                    ]}
+                  >
                     {habits.length}
                   </Text>
-                  <Text style={[styles.streakStatLabel, { color: colors.primaryForeground + "99" }]}>
+                  <Text
+                    style={[
+                      styles.streakStatLabel,
+                      { color: colors.primaryForeground + "99" },
+                    ]}
+                  >
                     habits
                   </Text>
                 </View>
@@ -124,14 +172,23 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          <View style={[styles.heatmapCard, { backgroundColor: colors.card, borderRadius: 20 }]}>
+          <View
+            style={[
+              styles.heatmapCard,
+              { backgroundColor: colors.card, borderRadius: 20 },
+            ]}
+          >
             <View style={styles.heatmapHeader}>
-              <Text style={[styles.heatmapTitle, { color: colors.foreground }]}>Activity</Text>
-              <Text style={[styles.heatmapSub, { color: colors.mutedForeground }]}>Last 26 weeks</Text>
+              <Text style={[styles.heatmapTitle, { color: colors.foreground }]}>
+                Activity
+              </Text>
+              <Text
+                style={[styles.heatmapSub, { color: colors.mutedForeground }]}
+              >
+                Last 26 weeks
+              </Text>
             </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <Heatmap data={heatmapData} />
-            </ScrollView>
+            <Heatmap data={heatmapData} autoScrollToLatest />
           </View>
 
           <View style={styles.habitsSection}>
@@ -141,10 +198,24 @@ export default function HomeScreen() {
               </Text>
               <Pressable
                 onPress={handleAddHabit}
-                style={[styles.addBtn, { backgroundColor: colors.primary, borderRadius: 20 }]}
+                style={[
+                  styles.addBtn,
+                  { backgroundColor: colors.primary, borderRadius: 20 },
+                ]}
               >
-                <Feather name="plus" size={16} color={colors.primaryForeground} />
-                <Text style={[styles.addBtnText, { color: colors.primaryForeground }]}>Add</Text>
+                <Feather
+                  name="plus"
+                  size={16}
+                  color={colors.primaryForeground}
+                />
+                <Text
+                  style={[
+                    styles.addBtnText,
+                    { color: colors.primaryForeground },
+                  ]}
+                >
+                  Add
+                </Text>
               </Pressable>
             </View>
 
@@ -153,16 +224,34 @@ export default function HomeScreen() {
                 onPress={handleAddHabit}
                 style={[
                   styles.emptyCard,
-                  { backgroundColor: colors.card, borderRadius: 20, borderColor: colors.border, borderWidth: 1 },
+                  {
+                    backgroundColor: colors.card,
+                    borderRadius: 20,
+                    borderColor: colors.border,
+                    borderWidth: 1,
+                  },
                 ]}
               >
-                <View style={[styles.emptyIcon, { backgroundColor: colors.primary + "22", borderRadius: 20 }]}>
+                <View
+                  style={[
+                    styles.emptyIcon,
+                    {
+                      backgroundColor: colors.primary + "22",
+                      borderRadius: 20,
+                    },
+                  ]}
+                >
                   <Feather name="plus" size={28} color={colors.primary} />
                 </View>
                 <Text style={[styles.emptyTitle, { color: colors.foreground }]}>
                   Add your first habit
                 </Text>
-                <Text style={[styles.emptySubtitle, { color: colors.mutedForeground }]}>
+                <Text
+                  style={[
+                    styles.emptySubtitle,
+                    { color: colors.mutedForeground },
+                  ]}
+                >
                   Track daily or weekly habits and build your streaks
                 </Text>
               </Pressable>

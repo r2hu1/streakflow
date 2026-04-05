@@ -5,6 +5,7 @@ import { Icon, Label, NativeTabs } from "expo-router/unstable-native-tabs";
 import { Feather } from "@expo/vector-icons";
 import React from "react";
 import { Platform, StyleSheet, View, useColorScheme } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 
 function NativeTabLayout() {
@@ -15,7 +16,12 @@ function NativeTabLayout() {
         <Label>Home</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="today">
-        <Icon sf={{ default: "checkmark.circle", selected: "checkmark.circle.fill" }} />
+        <Icon
+          sf={{
+            default: "checkmark.circle",
+            selected: "checkmark.circle.fill",
+          }}
+        />
         <Label>Today</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="stats">
@@ -33,9 +39,13 @@ function NativeTabLayout() {
 function ClassicTabLayout() {
   const colors = useColors();
   const colorScheme = useColorScheme();
+  const insets = useSafeAreaInsets();
   const isDark = colorScheme === "dark";
   const isIOS = Platform.OS === "ios";
   const isWeb = Platform.OS === "web";
+
+  const tabBarHeight = 60;
+  const bottomPadding = isWeb ? Math.max(insets.bottom, 20) : insets.bottom;
 
   return (
     <Tabs
@@ -45,12 +55,20 @@ function ClassicTabLayout() {
         headerShown: false,
         tabBarStyle: {
           position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
           backgroundColor: isIOS ? "transparent" : colors.background,
           borderTopWidth: 1,
           borderTopColor: colors.border,
           elevation: 0,
-          height: isWeb ? 84 : 60,
-          paddingBottom: isWeb ? 34 : 8,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: isDark ? 0.3 : 0.1,
+          shadowRadius: 8,
+          height: tabBarHeight + bottomPadding,
+          paddingBottom: bottomPadding,
+          paddingTop: 8,
         },
         tabBarBackground: () =>
           isIOS ? (
@@ -60,36 +78,77 @@ function ClassicTabLayout() {
               style={StyleSheet.absoluteFill}
             />
           ) : isWeb ? (
-            <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.background }]} />
+            <View
+              style={[
+                StyleSheet.absoluteFill,
+                { backgroundColor: colors.background },
+              ]}
+            />
           ) : null,
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: "500",
+          marginTop: 4,
+        },
+        tabBarItemStyle: {
+          paddingVertical: 4,
+        },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: "Home",
-          tabBarIcon: ({ color }) => <Feather name="home" size={22} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <Feather
+              name="home"
+              size={24}
+              color={color}
+              strokeWidth={focused ? 2.5 : 2}
+            />
+          ),
         }}
       />
       <Tabs.Screen
         name="today"
         options={{
           title: "Today",
-          tabBarIcon: ({ color }) => <Feather name="check-circle" size={22} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <Feather
+              name="check-circle"
+              size={24}
+              color={color}
+              strokeWidth={focused ? 2.5 : 2}
+            />
+          ),
         }}
       />
       <Tabs.Screen
         name="stats"
         options={{
           title: "Stats",
-          tabBarIcon: ({ color }) => <Feather name="bar-chart-2" size={22} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <Feather
+              name="bar-chart-2"
+              size={24}
+              color={color}
+              strokeWidth={focused ? 2.5 : 2}
+            />
+          ),
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: "Settings",
-          tabBarIcon: ({ color }) => <Feather name="settings" size={22} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <Feather
+              name="settings"
+              size={24}
+              color={color}
+              strokeWidth={focused ? 2.5 : 2}
+            />
+          ),
         }}
       />
     </Tabs>

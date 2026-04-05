@@ -20,8 +20,6 @@ export function useColors() {
   const scheme = theme === "system" ? deviceScheme : theme;
 
   const palette =
-    scheme === "dark" && "dark" in colors
-      ? (colors as Record<string, typeof colors.light>).dark
-      : colors.light;
+    scheme === "dark" && "dark" in colors ? colors.dark : colors.light;
   return { ...palette, radius: colors.radius };
 }

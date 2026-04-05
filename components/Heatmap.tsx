@@ -1,13 +1,22 @@
-import React, { useMemo } from "react";
-import { StyleSheet, View } from "react-native";
+import React, { useEffect, useMemo, useRef } from "react";
+import { Platform, ScrollView, StyleSheet, View } from "react-native";
 import { useColors } from "@/hooks/useColors";
 
 interface HeatmapProps {
   data: { date: string; count: number }[];
   maxCount?: number;
+  autoScrollToLatest?: boolean;
 }
 
-function HeatmapCell({ count, maxCount, colors }: { count: number; maxCount: number; colors: ReturnType<typeof useColors> }) {
+function HeatmapCell({
+  count,
+  maxCount,
+  colors,
+}: {
+  count: number;
+  maxCount: number;
+  colors: ReturnType<typeof useColors>;
+}) {
   const hm = (colors as any).heatmap;
 
   const getColor = () => {
@@ -22,8 +31,22 @@ function HeatmapCell({ count, maxCount, colors }: { count: number; maxCount: num
   return <View style={[styles.cell, { backgroundColor: getColor() }]} />;
 }
 
-export function Heatmap({ data, maxCount }: HeatmapProps) {
+export function Heatmap({
+  data,
+  maxCount,
+  autoScrollToLatest = false,
+}: HeatmapProps) {
   const colors = useColors();
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    if (autoScrollToLatest && scrollViewRef.current && data.length > 0) {
+      // Scroll to the end after a short delay to ensure layout is complete
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    }
+  }, [data, autoScrollToLatest]);
 
   const effectiveMax = useMemo(() => {
     if (maxCount) return maxCount;
@@ -58,7 +81,7 @@ export function Heatmap({ data, maxCount }: HeatmapProps) {
     return result;
   }, [data]);
 
-  return (
+  const heatmapContent = (
     <View style={styles.container}>
       {weeks.map((week, wi) => (
         <View key={wi} style={styles.week}>
@@ -77,6 +100,21 @@ export function Heatmap({ data, maxCount }: HeatmapProps) {
         </View>
       ))}
     </View>
+  );
+
+  if (Platform.OS === "web" || !autoScrollToLatest) {
+    return heatmapContent;
+  }
+
+  return (
+    <ScrollView
+      ref={scrollViewRef}
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={{ paddingRight: 8 }}
+    >
+      {heatmapContent}
+    </ScrollView>
   );
 }
 
