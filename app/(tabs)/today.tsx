@@ -1,12 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import React, { useMemo } from "react";
-import {
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { HabitCard } from "@/components/HabitCard";
 import { useColors } from "@/hooks/useColors";
@@ -23,9 +17,13 @@ const MOTIVATIONAL_MESSAGES = [
   "Champions are made in the daily grind.",
 ];
 
-function getMotivationalMessage(completedCount: number, totalCount: number): string {
+function getMotivationalMessage(
+  completedCount: number,
+  totalCount: number,
+): string {
   if (totalCount === 0) return "Add your first habit to get started!";
-  if (completedCount === totalCount) return "Amazing! You've completed all habits today!";
+  if (completedCount === totalCount)
+    return "Amazing! You've completed all habits today!";
   if (completedCount === 0) return MOTIVATIONAL_MESSAGES[new Date().getDay()];
   const ratio = completedCount / totalCount;
   if (ratio >= 0.5) return "More than halfway there — finish strong!";
@@ -35,13 +33,25 @@ function getMotivationalMessage(completedCount: number, totalCount: number): str
 export default function TodayScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { habits, completions, toggleHabitCompletion, getStreakForHabit } = useHabits();
+  const { habits, completions, toggleHabitCompletion, getStreakForHabit } =
+    useHabits();
 
   const today = getTodayDate();
-  const todayHabits = habits.filter((h) => h.frequency === "daily");
+  const todayDayOfWeek = new Date().getDay(); // 0 = Sunday, 1-6 = Monday-Saturday
+
+  // Filter habits that should be shown today:
+  // - All daily habits
+  // - Weekly habits where the user selects which day
+  const todayHabits = habits.filter((h) => {
+    if (h.frequency === "daily") return true;
+    // For weekly habits, show them every day (user can complete on any day)
+    if (h.frequency === "weekly") return true;
+    return false;
+  });
 
   const completedCount = useMemo(
-    () => todayHabits.filter((h) => isCompleted(completions, h.id, today)).length,
+    () =>
+      todayHabits.filter((h) => isCompleted(completions, h.id, today)).length,
     [todayHabits, completions, today],
   );
 
@@ -60,7 +70,9 @@ export default function TodayScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.foreground }]}>Today</Text>
+          <Text style={[styles.title, { color: colors.foreground }]}>
+            Today
+          </Text>
           <Text style={[styles.date, { color: colors.mutedForeground }]}>
             {new Date().toLocaleDateString("en-US", {
               weekday: "long",
@@ -70,16 +82,25 @@ export default function TodayScreen() {
           </Text>
         </View>
 
-        <View style={[styles.progressCard, { backgroundColor: colors.card, borderRadius: 20 }]}>
+        <View
+          style={[
+            styles.progressCard,
+            { backgroundColor: colors.card, borderRadius: 20 },
+          ]}
+        >
           <View style={styles.progressHeader}>
-            <Text style={[styles.progressLabel, { color: colors.mutedForeground }]}>
+            <Text
+              style={[styles.progressLabel, { color: colors.mutedForeground }]}
+            >
               Progress
             </Text>
             <Text style={[styles.progressCount, { color: colors.primary }]}>
               {completedCount}/{todayHabits.length}
             </Text>
           </View>
-          <View style={[styles.progressBar, { backgroundColor: colors.border }]}>
+          <View
+            style={[styles.progressBar, { backgroundColor: colors.border }]}
+          >
             <View
               style={[
                 styles.progressFill,
@@ -93,7 +114,9 @@ export default function TodayScreen() {
               ]}
             />
           </View>
-          <Text style={[styles.motivationalText, { color: colors.mutedForeground }]}>
+          <Text
+            style={[styles.motivationalText, { color: colors.mutedForeground }]}
+          >
             {message}
           </Text>
         </View>
@@ -104,8 +127,10 @@ export default function TodayScreen() {
             <Text style={[styles.emptyTitle, { color: colors.foreground }]}>
               No habits yet
             </Text>
-            <Text style={[styles.emptySubtitle, { color: colors.mutedForeground }]}>
-              Go to Home to add your first daily habit
+            <Text
+              style={[styles.emptySubtitle, { color: colors.mutedForeground }]}
+            >
+              Go to Home to add your first habit
             </Text>
           </View>
         ) : (
