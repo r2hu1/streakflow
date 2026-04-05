@@ -28,13 +28,28 @@ interface ConfirmModalProps {
   colors: ReturnType<typeof useColors>;
 }
 
-function ConfirmModal({ visible, packageInfo, onConfirm, onCancel, colors }: ConfirmModalProps) {
+function ConfirmModal({
+  visible,
+  packageInfo,
+  onConfirm,
+  onCancel,
+  colors,
+}: ConfirmModalProps) {
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.confirmOverlay}>
-        <View style={[styles.confirmBox, { backgroundColor: colors.card, borderRadius: 20 }]}>
-          <Text style={[styles.confirmTitle, { color: colors.foreground }]}>Confirm Purchase</Text>
-          <Text style={[styles.confirmMessage, { color: colors.mutedForeground }]}>
+        <View
+          style={[
+            styles.confirmBox,
+            { backgroundColor: colors.card, borderRadius: 20 },
+          ]}
+        >
+          <Text style={[styles.confirmTitle, { color: colors.foreground }]}>
+            Confirm Purchase
+          </Text>
+          <Text
+            style={[styles.confirmMessage, { color: colors.mutedForeground }]}
+          >
             Purchase{" "}
             <Text style={{ color: colors.primary, fontWeight: "600" }}>
               {packageInfo?.product?.title ?? "StreakFlow Pro"}
@@ -48,15 +63,30 @@ function ConfirmModal({ visible, packageInfo, onConfirm, onCancel, colors }: Con
           <View style={styles.confirmButtons}>
             <Pressable
               onPress={onCancel}
-              style={[styles.confirmBtn, { backgroundColor: colors.secondary, borderRadius: 12 }]}
+              style={[
+                styles.confirmBtn,
+                { backgroundColor: colors.secondary, borderRadius: 12 },
+              ]}
             >
-              <Text style={[styles.confirmBtnText, { color: colors.foreground }]}>Cancel</Text>
+              <Text
+                style={[styles.confirmBtnText, { color: colors.foreground }]}
+              >
+                Cancel
+              </Text>
             </Pressable>
             <Pressable
               onPress={onConfirm}
-              style={[styles.confirmBtn, { backgroundColor: colors.primary, borderRadius: 12 }]}
+              style={[
+                styles.confirmBtn,
+                { backgroundColor: colors.primary, borderRadius: 12 },
+              ]}
             >
-              <Text style={[styles.confirmBtnText, { color: colors.primaryForeground }]}>
+              <Text
+                style={[
+                  styles.confirmBtnText,
+                  { color: colors.primaryForeground },
+                ]}
+              >
                 Purchase
               </Text>
             </Pressable>
@@ -70,20 +100,27 @@ function ConfirmModal({ visible, packageInfo, onConfirm, onCancel, colors }: Con
 export function TrialExpiredGate({ visible }: { visible: boolean }) {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { offerings, purchase, restore, isPurchasing, isRestoring } = useSubscription();
-  const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">("monthly");
+  const { offerings, purchase, isPurchasing } = useSubscription();
+  const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">(
+    "monthly",
+  );
   const [confirmingPkg, setConfirmingPkg] = useState<any>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const pulse = useSharedValue(1);
   React.useEffect(() => {
     pulse.value = withRepeat(
-      withSequence(withTiming(1.04, { duration: 900 }), withTiming(1, { duration: 900 })),
+      withSequence(
+        withTiming(1.04, { duration: 900 }),
+        withTiming(1, { duration: 900 }),
+      ),
       -1,
       true,
     );
   }, []);
-  const pulseStyle = useAnimatedStyle(() => ({ transform: [{ scale: pulse.value }] }));
+  const pulseStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pulse.value }],
+  }));
 
   const currentOffering = offerings?.current;
   const monthlyPkg = currentOffering?.availablePackages.find(
@@ -112,15 +149,6 @@ export function TrialExpiredGate({ visible }: { visible: boolean }) {
     }
   };
 
-  const handleRestore = async () => {
-    setErrorMsg(null);
-    try {
-      await restore();
-    } catch (e: any) {
-      setErrorMsg(e?.message ?? "Restore failed.");
-    }
-  };
-
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
 
@@ -130,11 +158,21 @@ export function TrialExpiredGate({ visible }: { visible: boolean }) {
         <View
           style={[
             styles.container,
-            { backgroundColor: colors.background, paddingTop: topPad, paddingBottom: bottomPad },
+            {
+              backgroundColor: colors.background,
+              paddingTop: topPad,
+              paddingBottom: bottomPad,
+            },
           ]}
         >
           <View style={styles.content}>
-            <Animated.View style={[styles.lockIcon, { backgroundColor: colors.primary + "22", borderRadius: 40 }, pulseStyle]}>
+            <Animated.View
+              style={[
+                styles.lockIcon,
+                { backgroundColor: colors.primary + "22", borderRadius: 40 },
+                pulseStyle,
+              ]}
+            >
               <Feather name="lock" size={40} color={colors.primary} />
             </Animated.View>
 
@@ -142,13 +180,24 @@ export function TrialExpiredGate({ visible }: { visible: boolean }) {
               Your free trial has ended
             </Text>
             <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
-              Upgrade to StreakFlow Pro to keep your streaks alive and access all features.
+              Upgrade to StreakFlow Pro to keep your streaks alive and access
+              all features.
             </Text>
 
             <View style={styles.plansRow}>
               {[
-                { id: "monthly" as const, label: "Monthly", pkg: monthlyPkg, save: null },
-                { id: "yearly" as const, label: "Yearly", pkg: yearlyPkg, save: "Save 37%" },
+                {
+                  id: "monthly" as const,
+                  label: "Monthly",
+                  pkg: monthlyPkg,
+                  save: null,
+                },
+                {
+                  id: "yearly" as const,
+                  label: "Yearly",
+                  pkg: yearlyPkg,
+                  save: "Save 37%",
+                },
               ].map((plan) => (
                 <Pressable
                   key={plan.id}
@@ -160,22 +209,43 @@ export function TrialExpiredGate({ visible }: { visible: boolean }) {
                       borderRadius: 16,
                       borderWidth: 2,
                       borderColor:
-                        selectedPlan === plan.id ? colors.primary : colors.border,
+                        selectedPlan === plan.id
+                          ? colors.primary
+                          : colors.border,
                     },
                   ]}
                 >
                   {plan.save && (
-                    <View style={[styles.saveBadge, { backgroundColor: colors.primary }]}>
-                      <Text style={[styles.saveBadgeText, { color: colors.primaryForeground }]}>
+                    <View
+                      style={[
+                        styles.saveBadge,
+                        { backgroundColor: colors.primary },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.saveBadgeText,
+                          { color: colors.primaryForeground },
+                        ]}
+                      >
                         {plan.save}
                       </Text>
                     </View>
                   )}
-                  <Text style={[styles.planLabel, { color: colors.foreground }]}>{plan.label}</Text>
+                  <Text
+                    style={[styles.planLabel, { color: colors.foreground }]}
+                  >
+                    {plan.label}
+                  </Text>
                   <Text style={[styles.planPrice, { color: colors.primary }]}>
                     {plan.pkg?.product?.priceString ?? "—"}
                   </Text>
-                  <Text style={[styles.planPeriod, { color: colors.mutedForeground }]}>
+                  <Text
+                    style={[
+                      styles.planPeriod,
+                      { color: colors.mutedForeground },
+                    ]}
+                  >
                     {plan.id === "monthly" ? "/ month" : "/ year"}
                   </Text>
                 </Pressable>
@@ -183,7 +253,9 @@ export function TrialExpiredGate({ visible }: { visible: boolean }) {
             </View>
 
             {errorMsg && (
-              <Text style={[styles.error, { color: colors.destructive }]}>{errorMsg}</Text>
+              <Text style={[styles.error, { color: colors.destructive }]}>
+                {errorMsg}
+              </Text>
             )}
 
             <Pressable
@@ -201,18 +273,13 @@ export function TrialExpiredGate({ visible }: { visible: boolean }) {
               {isPurchasing ? (
                 <ActivityIndicator color={colors.primaryForeground} />
               ) : (
-                <Text style={[styles.subscribeBtnText, { color: colors.primaryForeground }]}>
+                <Text
+                  style={[
+                    styles.subscribeBtnText,
+                    { color: colors.primaryForeground },
+                  ]}
+                >
                   Upgrade Now
-                </Text>
-              )}
-            </Pressable>
-
-            <Pressable onPress={handleRestore} disabled={isRestoring} style={styles.restoreBtn}>
-              {isRestoring ? (
-                <ActivityIndicator size="small" color={colors.mutedForeground} />
-              ) : (
-                <Text style={[styles.restoreText, { color: colors.mutedForeground }]}>
-                  Restore purchases
                 </Text>
               )}
             </Pressable>
@@ -238,7 +305,13 @@ export function TrialExpiredGate({ visible }: { visible: boolean }) {
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: "center" },
   content: { paddingHorizontal: 28, alignItems: "center", gap: 20 },
-  lockIcon: { width: 80, height: 80, alignItems: "center", justifyContent: "center", marginBottom: 8 },
+  lockIcon: {
+    width: 80,
+    height: 80,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 8,
+  },
   title: { fontSize: 28, fontWeight: "700", textAlign: "center" },
   subtitle: { fontSize: 15, textAlign: "center", lineHeight: 22 },
   plansRow: { flexDirection: "row", gap: 12, width: "100%" },
@@ -255,10 +328,13 @@ const styles = StyleSheet.create({
   planPrice: { fontSize: 22, fontWeight: "700" },
   planPeriod: { fontSize: 12 },
   error: { fontSize: 13, textAlign: "center" },
-  subscribeBtn: { width: "100%", height: 56, alignItems: "center", justifyContent: "center" },
+  subscribeBtn: {
+    width: "100%",
+    height: 56,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   subscribeBtnText: { fontSize: 17, fontWeight: "700" },
-  restoreBtn: { paddingVertical: 10 },
-  restoreText: { fontSize: 14 },
   legal: { fontSize: 11, textAlign: "center", lineHeight: 16 },
   confirmOverlay: {
     flex: 1,
@@ -271,6 +347,11 @@ const styles = StyleSheet.create({
   confirmTitle: { fontSize: 20, fontWeight: "700", textAlign: "center" },
   confirmMessage: { fontSize: 15, lineHeight: 22, textAlign: "center" },
   confirmButtons: { flexDirection: "row", gap: 12, marginTop: 4 },
-  confirmBtn: { flex: 1, height: 48, alignItems: "center", justifyContent: "center" },
+  confirmBtn: {
+    flex: 1,
+    height: 48,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   confirmBtnText: { fontSize: 15, fontWeight: "600" },
 });

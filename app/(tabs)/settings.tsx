@@ -1,11 +1,10 @@
 import { Feather } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Platform,
   Pressable,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   useColorScheme,
   View,
@@ -14,6 +13,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ProBanner } from "@/components/ProBanner";
 import { useColors } from "@/hooks/useColors";
 import { useSubscription } from "@/lib/revenuecat";
+import { useThemeStore } from "@/store/themeStore";
 
 function SettingsRow({
   icon,
@@ -38,17 +38,30 @@ function SettingsRow({
         { opacity: pressed && onPress ? 0.7 : 1 },
       ]}
     >
-      <View style={[styles.rowIcon, { backgroundColor: colors.primary + "22", borderRadius: 10 }]}>
+      <View
+        style={[
+          styles.rowIcon,
+          { backgroundColor: colors.primary + "22", borderRadius: 10 },
+        ]}
+      >
         <Feather name={icon as any} size={18} color={colors.primary} />
       </View>
-      <Text style={[styles.rowLabel, { color: colors.foreground }]}>{label}</Text>
+      <Text style={[styles.rowLabel, { color: colors.foreground }]}>
+        {label}
+      </Text>
       <View style={styles.rowRight}>
         {value && (
-          <Text style={[styles.rowValue, { color: colors.mutedForeground }]}>{value}</Text>
+          <Text style={[styles.rowValue, { color: colors.mutedForeground }]}>
+            {value}
+          </Text>
         )}
         {rightElement}
         {onPress && !rightElement && (
-          <Feather name="chevron-right" size={16} color={colors.mutedForeground} />
+          <Feather
+            name="chevron-right"
+            size={16}
+            color={colors.mutedForeground}
+          />
         )}
       </View>
     </Pressable>
@@ -58,9 +71,14 @@ function SettingsRow({
 export default function SettingsScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const colorScheme = useColorScheme();
+  const deviceColorScheme = useColorScheme();
   const [showProBanner, setShowProBanner] = useState(false);
-  const { isSubscribed, isLoading, offerings, restore } = useSubscription();
+  const { isSubscribed, isLoading, offerings } = useSubscription();
+  const { theme, setTheme, loadTheme } = useThemeStore();
+
+  useEffect(() => {
+    loadTheme();
+  }, []);
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
@@ -69,6 +87,9 @@ export default function SettingsScreen() {
   const monthlyPkg = offerings?.current?.availablePackages.find(
     (p) => p.packageType === "MONTHLY" || p.identifier === "$rc_monthly",
   );
+
+  const themeLabel =
+    theme === "system" ? "System" : theme === "dark" ? "Dark" : "Light";
 
   return (
     <>
@@ -80,23 +101,48 @@ export default function SettingsScreen() {
           ]}
           showsVerticalScrollIndicator={false}
         >
-          <Text style={[styles.title, { color: colors.foreground }]}>Settings</Text>
+          <Text style={[styles.title, { color: colors.foreground }]}>
+            Settings
+          </Text>
 
           {!isSubscribed && (
             <Pressable
               onPress={() => setShowProBanner(true)}
-              style={[styles.proCard, { backgroundColor: colors.primary + "15", borderRadius: 20, borderColor: colors.primary + "44", borderWidth: 1 }]}
+              style={[
+                styles.proCard,
+                {
+                  backgroundColor: colors.primary + "15",
+                  borderRadius: 20,
+                  borderColor: colors.primary + "44",
+                  borderWidth: 1,
+                },
+              ]}
             >
               <View style={styles.proCardContent}>
-                <View style={[styles.proBadge, { backgroundColor: colors.primary }]}>
-                  <Text style={[styles.proBadgeText, { color: colors.primaryForeground }]}>PRO</Text>
+                <View
+                  style={[styles.proBadge, { backgroundColor: colors.primary }]}
+                >
+                  <Text
+                    style={[
+                      styles.proBadgeText,
+                      { color: colors.primaryForeground },
+                    ]}
+                  >
+                    PRO
+                  </Text>
                 </View>
                 <View style={styles.proText}>
                   <Text style={[styles.proTitle, { color: colors.foreground }]}>
                     Upgrade to Pro
                   </Text>
-                  <Text style={[styles.proSubtitle, { color: colors.mutedForeground }]}>
-                    {monthlyPkg?.product?.priceString ?? "$3.99"}/month — Unlimited habits & more
+                  <Text
+                    style={[
+                      styles.proSubtitle,
+                      { color: colors.mutedForeground },
+                    ]}
+                  >
+                    {monthlyPkg?.product?.priceString ?? "-"}/month — Unlimited
+                    habits & more
                   </Text>
                 </View>
               </View>
@@ -105,16 +151,40 @@ export default function SettingsScreen() {
           )}
 
           {isSubscribed && (
-            <View style={[styles.proCard, { backgroundColor: colors.primary + "15", borderRadius: 20, borderColor: colors.primary + "44", borderWidth: 1 }]}>
+            <View
+              style={[
+                styles.proCard,
+                {
+                  backgroundColor: colors.primary + "15",
+                  borderRadius: 20,
+                  borderColor: colors.primary + "44",
+                  borderWidth: 1,
+                },
+              ]}
+            >
               <View style={styles.proCardContent}>
-                <View style={[styles.proBadge, { backgroundColor: colors.primary }]}>
-                  <Text style={[styles.proBadgeText, { color: colors.primaryForeground }]}>PRO</Text>
+                <View
+                  style={[styles.proBadge, { backgroundColor: colors.primary }]}
+                >
+                  <Text
+                    style={[
+                      styles.proBadgeText,
+                      { color: colors.primaryForeground },
+                    ]}
+                  >
+                    PRO
+                  </Text>
                 </View>
                 <View style={styles.proText}>
                   <Text style={[styles.proTitle, { color: colors.foreground }]}>
                     StreakFlow Pro
                   </Text>
-                  <Text style={[styles.proSubtitle, { color: colors.mutedForeground }]}>
+                  <Text
+                    style={[
+                      styles.proSubtitle,
+                      { color: colors.mutedForeground },
+                    ]}
+                  >
                     Active — All features unlocked
                   </Text>
                 </View>
@@ -123,20 +193,67 @@ export default function SettingsScreen() {
             </View>
           )}
 
-          <View style={[styles.section, { backgroundColor: colors.card, borderRadius: 16 }]}>
-            <Text style={[styles.sectionHeader, { color: colors.mutedForeground }]}>
+          <View
+            style={[
+              styles.section,
+              { backgroundColor: colors.card, borderRadius: 16 },
+            ]}
+          >
+            <Text
+              style={[styles.sectionHeader, { color: colors.mutedForeground }]}
+            >
               Appearance
             </Text>
-            <SettingsRow
-              icon="moon"
-              label="Theme"
-              value={colorScheme === "dark" ? "Dark" : "Light"}
-              colors={colors}
-            />
+            <Pressable
+              onPress={() => {
+                const nextTheme =
+                  theme === "light"
+                    ? "dark"
+                    : theme === "dark"
+                      ? "system"
+                      : "light";
+                setTheme(nextTheme);
+              }}
+              style={({ pressed }) => [
+                styles.row,
+                { opacity: pressed ? 0.7 : 1 },
+              ]}
+            >
+              <View
+                style={[
+                  styles.rowIcon,
+                  { backgroundColor: colors.primary + "22", borderRadius: 10 },
+                ]}
+              >
+                <Feather name="moon" size={18} color={colors.primary} />
+              </View>
+              <Text style={[styles.rowLabel, { color: colors.foreground }]}>
+                Theme
+              </Text>
+              <View style={styles.rowRight}>
+                <Text
+                  style={[styles.rowValue, { color: colors.mutedForeground }]}
+                >
+                  {themeLabel}
+                </Text>
+                <Feather
+                  name="chevron-right"
+                  size={16}
+                  color={colors.mutedForeground}
+                />
+              </View>
+            </Pressable>
           </View>
 
-          <View style={[styles.section, { backgroundColor: colors.card, borderRadius: 16 }]}>
-            <Text style={[styles.sectionHeader, { color: colors.mutedForeground }]}>
+          <View
+            style={[
+              styles.section,
+              { backgroundColor: colors.card, borderRadius: 16 },
+            ]}
+          >
+            <Text
+              style={[styles.sectionHeader, { color: colors.mutedForeground }]}
+            >
               Subscription
             </Text>
             <SettingsRow
@@ -153,16 +270,19 @@ export default function SettingsScreen() {
                 colors={colors}
               />
             )}
-            <SettingsRow
-              icon="refresh-cw"
-              label="Restore Purchases"
-              onPress={() => restore()}
-              colors={colors}
-            />
           </View>
 
-          <View style={[styles.section, { backgroundColor: colors.card, borderRadius: 16 }]}>
-            <Text style={[styles.sectionHeader, { color: colors.mutedForeground }]}>About</Text>
+          <View
+            style={[
+              styles.section,
+              { backgroundColor: colors.card, borderRadius: 16 },
+            ]}
+          >
+            <Text
+              style={[styles.sectionHeader, { color: colors.mutedForeground }]}
+            >
+              About
+            </Text>
             <SettingsRow
               icon="info"
               label="Version"
@@ -179,7 +299,10 @@ export default function SettingsScreen() {
         </ScrollView>
       </View>
 
-      <ProBanner visible={showProBanner} onClose={() => setShowProBanner(false)} />
+      <ProBanner
+        visible={showProBanner}
+        onClose={() => setShowProBanner(false)}
+      />
     </>
   );
 }
@@ -194,7 +317,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  proCardContent: { flexDirection: "row", alignItems: "center", gap: 14, flex: 1 },
+  proCardContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    flex: 1,
+  },
   proBadge: {
     paddingHorizontal: 10,
     paddingVertical: 4,

@@ -15,8 +15,13 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { TrialExpiredGate } from "@/components/TrialExpiredGate";
-import { initializeRevenueCat, SubscriptionProvider, useSubscription } from "@/lib/revenuecat";
+import {
+  initializeRevenueCat,
+  SubscriptionProvider,
+  useSubscription,
+} from "@/lib/revenuecat";
 import { HabitsProvider } from "@/store/habitsStore";
+import { useThemeStore } from "@/store/themeStore";
 import { UserProvider, useUser } from "@/store/userStore";
 
 SplashScreen.preventAutoHideAsync();
@@ -45,7 +50,8 @@ function AppGate({ children }: { children: React.ReactNode }) {
     }
   }, [isLoading, onboardingComplete, segments]);
 
-  const showTrialGate = !isLoading && onboardingComplete && isTrialExpired && !isSubscribed;
+  const showTrialGate =
+    !isLoading && onboardingComplete && isTrialExpired && !isSubscribed;
 
   return (
     <>
@@ -59,7 +65,10 @@ function RootLayoutNav() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false }} />
+      <Stack.Screen
+        name="onboarding"
+        options={{ headerShown: false, gestureEnabled: false }}
+      />
       <Stack.Screen
         name="add-habit"
         options={{
@@ -79,11 +88,17 @@ export default function RootLayout() {
     Inter_700Bold,
   });
 
+  const { loadTheme } = useThemeStore();
+
   useEffect(() => {
     if (fontsLoaded || fontError) {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded, fontError]);
+
+  useEffect(() => {
+    loadTheme();
+  }, []);
 
   if (!fontsLoaded && !fontError) return null;
 

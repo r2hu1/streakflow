@@ -454,8 +454,10 @@ function UpgradeSlide({
   onSkipTrial: () => void;
   onStartTrial: () => void;
 }) {
-  const { offerings, isPurchasing, purchase, restore, isRestoring } = useSubscription();
-  const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">("monthly");
+  const { offerings, isPurchasing, purchase } = useSubscription();
+  const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">(
+    "monthly",
+  );
   const [confirmingPkg, setConfirmingPkg] = useState<any>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 

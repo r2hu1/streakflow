@@ -35,20 +35,32 @@ interface ConfirmModalProps {
   colors: ReturnType<typeof useColors>;
 }
 
-function ConfirmModal({ visible, packageInfo, onConfirm, onCancel, colors }: ConfirmModalProps) {
+function ConfirmModal({
+  visible,
+  packageInfo,
+  onConfirm,
+  onCancel,
+  colors,
+}: ConfirmModalProps) {
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.confirmOverlay}>
         <View
           style={[
             styles.confirmBox,
-            { backgroundColor: colors.card, borderColor: colors.border, borderRadius: 20 },
+            {
+              backgroundColor: colors.card,
+              borderColor: colors.border,
+              borderRadius: 20,
+            },
           ]}
         >
           <Text style={[styles.confirmTitle, { color: colors.foreground }]}>
             Confirm Purchase
           </Text>
-          <Text style={[styles.confirmMessage, { color: colors.mutedForeground }]}>
+          <Text
+            style={[styles.confirmMessage, { color: colors.mutedForeground }]}
+          >
             You are about to purchase{" "}
             <Text style={{ color: colors.primary, fontWeight: "600" }}>
               {packageInfo?.product?.title ?? "StreakFlow Pro"}
@@ -67,7 +79,11 @@ function ConfirmModal({ visible, packageInfo, onConfirm, onCancel, colors }: Con
                 { backgroundColor: colors.secondary, borderRadius: 12 },
               ]}
             >
-              <Text style={[styles.confirmBtnText, { color: colors.foreground }]}>Cancel</Text>
+              <Text
+                style={[styles.confirmBtnText, { color: colors.foreground }]}
+              >
+                Cancel
+              </Text>
             </Pressable>
             <Pressable
               onPress={onConfirm}
@@ -76,7 +92,12 @@ function ConfirmModal({ visible, packageInfo, onConfirm, onCancel, colors }: Con
                 { backgroundColor: colors.primary, borderRadius: 12 },
               ]}
             >
-              <Text style={[styles.confirmBtnText, { color: colors.primaryForeground }]}>
+              <Text
+                style={[
+                  styles.confirmBtnText,
+                  { color: colors.primaryForeground },
+                ]}
+              >
                 Purchase
               </Text>
             </Pressable>
@@ -90,8 +111,10 @@ function ConfirmModal({ visible, packageInfo, onConfirm, onCancel, colors }: Con
 export function ProBanner({ visible, onClose }: ProBannerProps) {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { offerings, isPurchasing, isRestoring, purchase, restore } = useSubscription();
-  const [selectedPkg, setSelectedPkg] = useState<"monthly" | "yearly">("monthly");
+  const { offerings, isPurchasing, purchase } = useSubscription();
+  const [selectedPkg, setSelectedPkg] = useState<"monthly" | "yearly">(
+    "monthly",
+  );
   const [confirmingPkg, setConfirmingPkg] = useState<any>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -123,19 +146,13 @@ export function ProBanner({ visible, onClose }: ProBannerProps) {
     }
   };
 
-  const handleRestore = async () => {
-    setErrorMsg(null);
-    try {
-      await restore();
-      onClose();
-    } catch (e: any) {
-      setErrorMsg(e?.message ?? "Restore failed.");
-    }
-  };
-
   return (
     <>
-      <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
+      <Modal
+        visible={visible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+      >
         <View
           style={[
             styles.container,
@@ -153,26 +170,52 @@ export function ProBanner({ visible, onClose }: ProBannerProps) {
             <Feather name="x" size={20} color={colors.mutedForeground} />
           </Pressable>
 
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scroll}
+          >
             <View style={styles.header}>
-              <View style={[styles.badge, { backgroundColor: colors.primary + "22" }]}>
-                <Text style={[styles.badgeText, { color: colors.primary }]}>PRO</Text>
+              <View
+                style={[
+                  styles.badge,
+                  { backgroundColor: colors.primary + "22" },
+                ]}
+              >
+                <Text style={[styles.badgeText, { color: colors.primary }]}>
+                  PRO
+                </Text>
               </View>
               <Text style={[styles.title, { color: colors.foreground }]}>
                 Unlock StreakFlow Pro
               </Text>
-              <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
+              <Text
+                style={[styles.subtitle, { color: colors.mutedForeground }]}
+              >
                 Everything you need to build unbreakable habits
               </Text>
             </View>
 
-            <View style={[styles.featuresCard, { backgroundColor: colors.card, borderRadius: 20 }]}>
+            <View
+              style={[
+                styles.featuresCard,
+                { backgroundColor: colors.card, borderRadius: 20 },
+              ]}
+            >
               {PRO_FEATURES.map((f, i) => (
                 <View key={i} style={styles.featureRow}>
-                  <View style={[styles.featureIcon, { backgroundColor: colors.primary + "22" }]}>
+                  <View
+                    style={[
+                      styles.featureIcon,
+                      { backgroundColor: colors.primary + "22" },
+                    ]}
+                  >
                     <Feather name={f.icon} size={18} color={colors.primary} />
                   </View>
-                  <Text style={[styles.featureText, { color: colors.foreground }]}>{f.text}</Text>
+                  <Text
+                    style={[styles.featureText, { color: colors.foreground }]}
+                  >
+                    {f.text}
+                  </Text>
                   <Feather name="check" size={16} color={colors.primary} />
                 </View>
               ))}
@@ -203,17 +246,31 @@ export function ProBanner({ visible, onClose }: ProBannerProps) {
                       borderRadius: 16,
                       borderWidth: 2,
                       borderColor:
-                        selectedPkg === plan.id ? colors.primary : colors.border,
+                        selectedPkg === plan.id
+                          ? colors.primary
+                          : colors.border,
                     },
                   ]}
                 >
                   <View style={styles.planHeader}>
-                    <Text style={[styles.planLabel, { color: colors.foreground }]}>
+                    <Text
+                      style={[styles.planLabel, { color: colors.foreground }]}
+                    >
                       {plan.label}
                     </Text>
                     {plan.badge && (
-                      <View style={[styles.saveBadge, { backgroundColor: colors.primary }]}>
-                        <Text style={[styles.saveBadgeText, { color: colors.primaryForeground }]}>
+                      <View
+                        style={[
+                          styles.saveBadge,
+                          { backgroundColor: colors.primary },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.saveBadgeText,
+                            { color: colors.primaryForeground },
+                          ]}
+                        >
                           {plan.badge}
                         </Text>
                       </View>
@@ -222,7 +279,12 @@ export function ProBanner({ visible, onClose }: ProBannerProps) {
                   <Text style={[styles.planPrice, { color: colors.primary }]}>
                     {plan.pkg?.product?.priceString ?? "—"}
                   </Text>
-                  <Text style={[styles.planPeriod, { color: colors.mutedForeground }]}>
+                  <Text
+                    style={[
+                      styles.planPeriod,
+                      { color: colors.mutedForeground },
+                    ]}
+                  >
                     {plan.id === "monthly" ? "per month" : "per year"}
                   </Text>
                 </Pressable>
@@ -230,12 +292,14 @@ export function ProBanner({ visible, onClose }: ProBannerProps) {
             </View>
 
             {errorMsg && (
-              <Text style={[styles.errorText, { color: colors.destructive }]}>{errorMsg}</Text>
+              <Text style={[styles.errorText, { color: colors.destructive }]}>
+                {errorMsg}
+              </Text>
             )}
 
             <Pressable
               onPress={handleSubscribe}
-              disabled={isPurchasing || isRestoring || !selectedPackage}
+              disabled={isPurchasing || !selectedPackage}
               style={[
                 styles.subscribeBtn,
                 {
@@ -248,18 +312,13 @@ export function ProBanner({ visible, onClose }: ProBannerProps) {
               {isPurchasing ? (
                 <ActivityIndicator color={colors.primaryForeground} />
               ) : (
-                <Text style={[styles.subscribeBtnText, { color: colors.primaryForeground }]}>
+                <Text
+                  style={[
+                    styles.subscribeBtnText,
+                    { color: colors.primaryForeground },
+                  ]}
+                >
                   Start Free Trial
-                </Text>
-              )}
-            </Pressable>
-
-            <Pressable onPress={handleRestore} disabled={isRestoring} style={styles.restoreBtn}>
-              {isRestoring ? (
-                <ActivityIndicator size="small" color={colors.mutedForeground} />
-              ) : (
-                <Text style={[styles.restoreText, { color: colors.mutedForeground }]}>
-                  Restore purchases
                 </Text>
               )}
             </Pressable>
@@ -394,13 +453,6 @@ const styles = StyleSheet.create({
   subscribeBtnText: {
     fontSize: 17,
     fontWeight: "700",
-  },
-  restoreBtn: {
-    alignItems: "center",
-    paddingVertical: 8,
-  },
-  restoreText: {
-    fontSize: 14,
   },
   legal: {
     fontSize: 12,
