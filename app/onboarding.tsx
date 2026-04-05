@@ -68,7 +68,7 @@ function WelcomeSlide({
         <Animated.View
           style={[
             styles.logoWrap,
-            { backgroundColor: colors.primary, borderRadius: 32 },
+            { backgroundColor: colors.primary, borderRadius: 0 },
             logoStyle,
           ]}
         >
@@ -93,7 +93,12 @@ function WelcomeSlide({
           entering={FadeInDown.delay(600).duration(500)}
           style={styles.nameField}
         >
-          <Text style={[styles.nameLabel, { color: colors.mutedForeground }]}>
+          <Text
+            style={[
+              styles.nameLabel,
+              { color: colors.mutedForeground, textAlign: "center" },
+            ]}
+          >
             What should we call you?
           </Text>
           <TextInput
@@ -549,7 +554,12 @@ function UpgradeSlide({
                 >
                   {f.text}
                 </Text>
-                <Feather name="check" size={14} color={colors.primary} />
+                <Feather
+                  name="check"
+                  size={14}
+                  color={colors.primary}
+                  style={{ marginLeft: "auto" }}
+                />
               </View>
             ))}
           </Animated.View>
@@ -892,6 +902,7 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   slide: { flex: 1, alignItems: "center", justifyContent: "center" },
   slideContent: {
+    width: "100%",
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 28,
@@ -921,6 +932,7 @@ const styles = StyleSheet.create({
   nameField: { width: "100%", gap: 8, marginTop: 8 },
   nameLabel: { fontSize: 14, fontWeight: "500" },
   nameInput: {
+    width: "100%",
     height: 54,
     paddingHorizontal: 16,
     fontSize: 18,
@@ -970,15 +982,19 @@ const styles = StyleSheet.create({
     lineHeight: 40,
   },
   upgSub: { fontSize: 15, textAlign: "center", lineHeight: 22 },
-  featuresCard: { width: "100%", padding: 16, gap: 12 },
-  featureRow: { flexDirection: "row", alignItems: "center", gap: 12 },
+  featuresCard: { padding: 16, gap: 12 },
+  featureRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
   featureIconBox: {
     width: 34,
     height: 34,
     alignItems: "center",
     justifyContent: "center",
   },
-  featureText: { flex: 1, fontSize: 14, fontWeight: "500" },
+  featureText: { fontSize: 14, fontWeight: "500" },
   plansRow: { flexDirection: "row", gap: 12, width: "100%" },
   planCard: { flex: 1, padding: 14, gap: 4, alignItems: "center" },
   saveBadge: {
@@ -992,7 +1008,7 @@ const styles = StyleSheet.create({
   planLabel: { fontSize: 13, fontWeight: "600" },
   planPrice: { fontSize: 20, fontWeight: "700" },
   errorText: { fontSize: 13, textAlign: "center" },
-  ctaWrap: { width: "100%", gap: 12 },
+  ctaWrap: { gap: 12 },
   ctaBtn: {
     height: 58,
     alignItems: "center",

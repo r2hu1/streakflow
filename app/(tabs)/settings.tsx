@@ -1,5 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
@@ -12,6 +13,7 @@ import {
   useColorScheme,
   View,
 } from "react-native";
+import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ProBanner } from "@/components/ProBanner";
 import { useColors } from "@/hooks/useColors";
@@ -82,10 +84,36 @@ export default function SettingsScreen() {
   const { theme, setTheme, loadTheme } = useThemeStore();
   const { habits } = useHabits();
   const { userName } = useUser();
+  const router = useRouter();
 
   useEffect(() => {
     loadTheme();
   }, []);
+
+  const handleResetOnboarding = () => {
+    Alert.alert(
+      "Reset Onboarding",
+      "This will restart the onboarding flow. Continue?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Reset",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await AsyncStorage.removeItem("streakflow_onboarding_complete");
+              await AsyncStorage.removeItem("streakflow_user_name");
+              await AsyncStorage.removeItem("streakflow_trial_start");
+              router.replace("/onboarding");
+            } catch (error) {
+              console.error("Reset error:", error);
+              Alert.alert("Error", "Failed to reset onboarding");
+            }
+          },
+        },
+      ],
+    );
+  };
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
@@ -394,6 +422,39 @@ export default function SettingsScreen() {
               value="Made with focus"
               colors={colors}
             />
+            <Pressable
+              onPress={handleResetOnboarding}
+              style={({ pressed }) => [
+                styles.row,
+                { opacity: pressed ? 0.7 : 1 },
+              ]}
+            >
+              <View
+                style={[
+                  styles.rowIcon,
+                  {
+                    backgroundColor: colors.destructive + "22",
+                    borderRadius: 10,
+                  },
+                ]}
+              >
+                <Feather
+                  name="refresh-ccw"
+                  size={18}
+                  color={colors.destructive}
+                />
+              </View>
+              <Text style={[styles.rowLabel, { color: colors.destructive }]}>
+                Reset Onboarding
+              </Text>
+              <View style={styles.rowRight}>
+                <Feather
+                  name="chevron-right"
+                  size={16}
+                  color={colors.mutedForeground}
+                />
+              </View>
+            </Pressable>
           </View>
         </ScrollView>
       </View>
