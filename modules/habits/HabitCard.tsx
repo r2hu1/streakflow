@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { useColors } from "@/hooks/useColors";
 import type { Habit } from "@/lib/database";
 import { HabitCheckButton } from "./HabitCheckButton";
@@ -10,20 +10,31 @@ interface HabitCardProps {
   completed: boolean;
   streak: number;
   onToggle: () => void;
+  onLongPress?: () => void;
 }
 
-export function HabitCard({ habit, completed, streak, onToggle }: HabitCardProps) {
+export function HabitCard({
+  habit,
+  completed,
+  streak,
+  onToggle,
+  onLongPress,
+}: HabitCardProps) {
   const colors = useColors();
 
   return (
-    <View
-      style={[
+    <Pressable
+      onPress={onLongPress}
+      onLongPress={onLongPress}
+      delayLongPress={500}
+      style={({ pressed }) => [
         styles.card,
         {
           backgroundColor: colors.card,
           borderRadius: 16,
           borderColor: completed ? colors.primary + "33" : colors.border,
           borderWidth: 1,
+          opacity: pressed && onLongPress ? 0.7 : 1,
         },
       ]}
     >
@@ -54,7 +65,7 @@ export function HabitCard({ habit, completed, streak, onToggle }: HabitCardProps
       </View>
 
       <HabitCheckButton completed={completed} onPress={onToggle} size={44} />
-    </View>
+    </Pressable>
   );
 }
 
