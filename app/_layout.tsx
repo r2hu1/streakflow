@@ -34,6 +34,8 @@ try {
   console.warn("RevenueCat not configured:", err?.message);
 }
 
+registerWidgets();
+
 const queryClient = new QueryClient();
 
 function AppGate({ children }: { children: React.ReactNode }) {
