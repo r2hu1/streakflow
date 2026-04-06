@@ -53,26 +53,36 @@ async function getWidgetComponent(widgetName: string) {
 export function updateWidgets() {
   if (Platform.OS !== 'android') return;
 
-  const widgets = ['Heatmap', 'Stats', 'Tasks'];
-  
-  for (const widgetName of widgets) {
-    requestWidgetUpdate({
-      widgetName,
-      renderWidget: () => getWidgetComponent(widgetName),
-    });
+  try {
+    const widgets = ['Heatmap', 'Stats', 'Tasks'];
+    
+    for (const widgetName of widgets) {
+      requestWidgetUpdate({
+        widgetName,
+        renderWidget: () => getWidgetComponent(widgetName),
+      });
+    }
+  } catch (error) {
+    // Silently fail if native module is not linked (e.g. in Expo Go)
+    console.warn('Widget update skipped: Native module not linked. Widgets only work in Development Builds.');
   }
 }
 
 export function registerWidgets() {
   if (Platform.OS !== 'android') return;
 
-  registerWidgetTaskHandler(async (props) => {
-    const { widgetInfo, renderWidget } = props;
-    const { widgetName } = widgetInfo;
+  try {
+    registerWidgetTaskHandler(async (props) => {
+      const { widgetInfo, renderWidget } = props;
+      const { widgetName } = widgetInfo;
 
-    const component = await getWidgetComponent(widgetName);
-    if (component) {
-      renderWidget(component);
-    }
-  });
+      const component = await getWidgetComponent(widgetName);
+      if (component) {
+        renderWidget(component);
+      }
+    });
+  } catch (error) {
+    // Silently fail if native module is not linked (e.g. in Expo Go)
+    console.warn('Widget registration skipped: Native module not linked. Widgets only work in Development Builds.');
+  }
 }
