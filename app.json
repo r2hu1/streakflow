@@ -27,7 +27,40 @@
       "expo-router",
       "expo-font",
       "expo-web-browser",
-      "react-native-android-widget"
+      [
+        "react-native-android-widget",
+        {
+          "widgets": [
+            {
+              "name": "Heatmap",
+              "label": "StreakFlow Heatmap",
+              "minWidth": "160dp",
+              "minHeight": "80dp",
+              "targetWidth": "4x2",
+              "targetHeight": "2x2",
+              "description": "View your habit consistency"
+            },
+            {
+              "name": "Stats",
+              "label": "StreakFlow Stats",
+              "minWidth": "80dp",
+              "minHeight": "80dp",
+              "targetWidth": "2x2",
+              "targetHeight": "2x2",
+              "description": "Your current streak and today's progress"
+            },
+            {
+              "name": "Tasks",
+              "label": "StreakFlow Tasks",
+              "minWidth": "80dp",
+              "minHeight": "80dp",
+              "targetWidth": "2x2",
+              "targetHeight": "3x2",
+              "description": "See today's habits"
+            }
+          ]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
