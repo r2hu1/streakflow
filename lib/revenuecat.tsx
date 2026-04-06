@@ -6,16 +6,25 @@ import Constants from "expo-constants";
 
 const REVENUECAT_TEST_API_KEY = process.env.EXPO_PUBLIC_REVENUECAT_TEST_API_KEY;
 const REVENUECAT_IOS_API_KEY = process.env.EXPO_PUBLIC_REVENUECAT_IOS_API_KEY;
-const REVENUECAT_ANDROID_API_KEY = process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY;
+const REVENUECAT_ANDROID_API_KEY =
+  process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY;
 
 export const REVENUECAT_ENTITLEMENT_IDENTIFIER = "pro";
 
 function getRevenueCatApiKey(): string | null {
-  if (!REVENUECAT_TEST_API_KEY || !REVENUECAT_IOS_API_KEY || !REVENUECAT_ANDROID_API_KEY) {
+  if (
+    !REVENUECAT_TEST_API_KEY ||
+    !REVENUECAT_IOS_API_KEY ||
+    !REVENUECAT_ANDROID_API_KEY
+  ) {
     return null;
   }
 
-  if (__DEV__ || Platform.OS === "web" || Constants.executionEnvironment === "storeClient") {
+  if (
+    __DEV__ ||
+    Platform.OS === "web" ||
+    Constants.executionEnvironment === "storeClient"
+  ) {
     return REVENUECAT_TEST_API_KEY;
   }
 
@@ -35,7 +44,9 @@ export let revenueCatInitialized = false;
 export function initializeRevenueCat() {
   const apiKey = getRevenueCatApiKey();
   if (!apiKey) {
-    console.warn("RevenueCat: API keys not configured. Subscription features will be limited.");
+    console.warn(
+      "RevenueCat: API keys not configured. Subscription features will be limited.",
+    );
     return;
   }
 
@@ -69,7 +80,8 @@ function useSubscriptionContext() {
 
   const purchaseMutation = useMutation({
     mutationFn: async (packageToPurchase: any) => {
-      const { customerInfo } = await Purchases.purchasePackage(packageToPurchase);
+      const { customerInfo } =
+        await Purchases.purchasePackage(packageToPurchase);
       return customerInfo;
     },
     onSuccess: () => customerInfoQuery.refetch(),
@@ -83,7 +95,10 @@ function useSubscriptionContext() {
   });
 
   const isSubscribed =
-    customerInfoQuery.data?.entitlements.active?.[REVENUECAT_ENTITLEMENT_IDENTIFIER] !== undefined;
+    customerInfoQuery.data?.entitlements.active?.[
+      REVENUECAT_ENTITLEMENT_IDENTIFIER
+    ] !== undefined;
+  console.log(isSubscribed);
 
   return {
     customerInfo: customerInfoQuery.data,
@@ -101,7 +116,11 @@ function useSubscriptionContext() {
 type SubscriptionContextValue = ReturnType<typeof useSubscriptionContext>;
 const Context = createContext<SubscriptionContextValue | null>(null);
 
-export function SubscriptionProvider({ children }: { children: React.ReactNode }) {
+export function SubscriptionProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const value = useSubscriptionContext();
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }
@@ -109,7 +128,9 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
 export function useSubscription() {
   const ctx = useContext(Context);
   if (!ctx) {
-    throw new Error("useSubscription must be used within a SubscriptionProvider");
+    throw new Error(
+      "useSubscription must be used within a SubscriptionProvider",
+    );
   }
   return ctx;
 }
