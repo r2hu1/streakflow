@@ -23,7 +23,12 @@
     "web": {
       "favicon": "./assets/images/icon.png"
     },
-    "plugins": ["expo-router", "expo-font", "expo-web-browser"],
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-web-browser",
+      "react-native-android-widget"
+    ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
