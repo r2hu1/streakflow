@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "expo start",
     "build": "expo build",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
@@ -58,6 +60,9 @@
     "expo-sharing": "^55.0.16",
     "react-native-android-widget": "^0.20.1",
     "react-native-purchases": "9.7.2",
-    "zustand": "^5.0.12"
+    "zustand": "^5.0.12",
+    "expo": "~54.0.33",
+    "react": "19.1.0",
+    "react-native": "0.81.5"
   }
 }
