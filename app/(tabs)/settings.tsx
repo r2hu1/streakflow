@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ProBanner } from "@/components/ProBanner";
+import { ProBanner } from "@/modules/subscription";
 import { useColors } from "@/hooks/useColors";
 import { useSubscription } from "@/lib/revenuecat";
 import { useHabits } from "@/store/habitsStore";
