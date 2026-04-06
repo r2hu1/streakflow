@@ -23,6 +23,8 @@ import {
 import { HabitsProvider } from "@/store/habitsStore";
 import { useThemeStore } from "@/store/themeStore";
 import { UserProvider, useUser } from "@/store/userStore";
+import { registerWidgets } from "@/widgets";
+import { Platform } from "react-native";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -98,6 +100,9 @@ export default function RootLayout() {
 
   useEffect(() => {
     loadTheme();
+    if (Platform.OS === "android") {
+      registerWidgets();
+    }
   }, []);
 
   if (!fontsLoaded && !fontError) return null;
