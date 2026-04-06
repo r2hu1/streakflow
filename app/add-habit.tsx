@@ -16,7 +16,7 @@ import { useColors } from "@/hooks/useColors";
 import { generateId, getTodayDate, type Habit } from "@/lib/database";
 import { useHabits } from "@/store/habitsStore";
 import { useSubscription } from "@/lib/revenuecat";
-import { ProBanner } from "@/components/ProBanner";
+import { ProBanner } from "@/modules/subscription";
 
 const ICONS = [
   "activity",
