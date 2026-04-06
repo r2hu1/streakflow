@@ -100,7 +100,13 @@ function ConfirmModal({
 export function TrialExpiredGate({ visible }: { visible: boolean }) {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { offerings, purchase, isPurchasing } = useSubscription();
+  const {
+    offerings,
+    purchase,
+    isPurchasing,
+    isSubscribed,
+    refetchCustomerInfo,
+  } = useSubscription();
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">(
     "monthly",
   );
@@ -142,6 +148,8 @@ export function TrialExpiredGate({ visible }: { visible: boolean }) {
     setErrorMsg(null);
     try {
       await purchase(selectedPackage);
+      // Refetch customer info to update subscription status
+      await refetchCustomerInfo();
     } catch (e: any) {
       if (!e?.userCancelled) {
         setErrorMsg(e?.message ?? "Purchase failed. Please try again.");
@@ -196,7 +204,7 @@ export function TrialExpiredGate({ visible }: { visible: boolean }) {
                   id: "yearly" as const,
                   label: "Yearly",
                   pkg: yearlyPkg,
-                  save: "Save 37%",
+                  save: "Save 35%",
                 },
               ].map((plan) => (
                 <Pressable
