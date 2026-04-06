@@ -90,6 +90,17 @@ export default function SettingsScreen() {
     loadTheme();
   }, []);
 
+  const topPad = Platform.OS === "web" ? 67 : insets.top;
+  const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
+
+  const currentPlan = isSubscribed ? "Pro" : "Free";
+  const monthlyPkg = offerings?.current?.availablePackages.find(
+    (p) => p.packageType === "MONTHLY" || p.identifier === "$rc_monthly",
+  );
+
+  const themeLabel =
+    theme === "system" ? "System" : theme === "dark" ? "Dark" : "Light";
+
   const handleResetOnboarding = () => {
     Alert.alert(
       "Reset Onboarding",
@@ -114,17 +125,6 @@ export default function SettingsScreen() {
       ],
     );
   };
-
-  const topPad = Platform.OS === "web" ? 67 : insets.top;
-  const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
-
-  const currentPlan = isSubscribed ? "Pro" : "Free";
-  const monthlyPkg = offerings?.current?.availablePackages.find(
-    (p) => p.packageType === "MONTHLY" || p.identifier === "$rc_monthly",
-  );
-
-  const themeLabel =
-    theme === "system" ? "System" : theme === "dark" ? "Dark" : "Light";
 
   const handleExportData = async () => {
     try {
@@ -462,6 +462,7 @@ export default function SettingsScreen() {
       <ProBanner
         visible={showProBanner}
         onClose={() => setShowProBanner(false)}
+        mode="upgrade"
       />
     </>
   );
