@@ -9,7 +9,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Heatmap } from "@/components/Heatmap";
+import { Heatmap } from "@/modules/habits";
 import { useColors } from "@/hooks/useColors";
 import {
   calculateLongestStreak,
