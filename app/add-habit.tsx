@@ -266,7 +266,11 @@ export default function AddHabitScreen() {
         </ScrollView>
       </View>
 
-      <ProBanner visible={showPro} onClose={() => setShowPro(false)} />
+      <ProBanner
+        visible={showPro}
+        onClose={() => setShowPro(false)}
+        mode="upgrade"
+      />
     </>
   );
 }
