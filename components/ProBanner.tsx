@@ -17,6 +17,7 @@ import { useSubscription } from "@/lib/revenuecat";
 interface ProBannerProps {
   visible: boolean;
   onClose: () => void;
+  mode?: "trial" | "upgrade";
 }
 
 const PRO_FEATURES = [
@@ -108,15 +109,27 @@ function ConfirmModal({
   );
 }
 
-export function ProBanner({ visible, onClose }: ProBannerProps) {
+export function ProBanner({
+  visible,
+  onClose,
+  mode = "upgrade",
+}: ProBannerProps) {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { offerings, isPurchasing, purchase } = useSubscription();
+  const { offerings, isPurchasing, purchase, refetchCustomerInfo } =
+    useSubscription();
   const [selectedPkg, setSelectedPkg] = useState<"monthly" | "yearly">(
     "monthly",
   );
   const [confirmingPkg, setConfirmingPkg] = useState<any>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const isTrialMode = mode === "trial";
+  const ctaText = isTrialMode ? "Start Free Trial" : "Upgrade Now";
+  const titleText = isTrialMode ? "Unlock StreakFlow Pro" : "Upgrade to Pro";
+  const subtitleText = isTrialMode
+    ? "Everything you need to build unbreakable habits"
+    : "Get unlimited habits and premium features";
 
   const currentOffering = offerings?.current;
   const monthlyPkg = currentOffering?.availablePackages.find(
@@ -138,6 +151,8 @@ export function ProBanner({ visible, onClose }: ProBannerProps) {
     setErrorMsg(null);
     try {
       await purchase(selectedPackage);
+      // Refetch customer info to update subscription status
+      await refetchCustomerInfo();
       onClose();
     } catch (e: any) {
       if (!e?.userCancelled) {
@@ -186,12 +201,12 @@ export function ProBanner({ visible, onClose }: ProBannerProps) {
                 </Text>
               </View>
               <Text style={[styles.title, { color: colors.foreground }]}>
-                Unlock StreakFlow Pro
+                {titleText}
               </Text>
               <Text
                 style={[styles.subtitle, { color: colors.mutedForeground }]}
               >
-                Everything you need to build unbreakable habits
+                {subtitleText}
               </Text>
             </View>
 
@@ -233,7 +248,7 @@ export function ProBanner({ visible, onClose }: ProBannerProps) {
                   id: "yearly" as const,
                   label: "Yearly",
                   pkg: yearlyPkg,
-                  badge: "Save 37%",
+                  badge: "Save 35%",
                 },
               ].map((plan) => (
                 <Pressable
@@ -318,7 +333,7 @@ export function ProBanner({ visible, onClose }: ProBannerProps) {
                     { color: colors.primaryForeground },
                   ]}
                 >
-                  Start Free Trial
+                  {ctaText}
                 </Text>
               )}
             </Pressable>
