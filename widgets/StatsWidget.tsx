@@ -1,5 +1,5 @@
 import React from 'react';
-import { Flex, Text } from 'react-native-android-widget';
+import { FlexWidget, TextWidget } from 'react-native-android-widget';
 
 interface StatsWidgetProps {
   totalStreak: number;
@@ -9,7 +9,7 @@ interface StatsWidgetProps {
 
 export function StatsWidget({ totalStreak, completedToday, totalHabits }: StatsWidgetProps) {
   return (
-    <Flex
+    <FlexWidget
       style={{
         height: 'match_parent',
         width: 'match_parent',
@@ -19,7 +19,7 @@ export function StatsWidget({ totalStreak, completedToday, totalHabits }: StatsW
         justifyContent: 'space-between',
       }}
     >
-      <Text
+      <TextWidget
         text="My Stats"
         style={{
           fontSize: 14,
@@ -28,9 +28,9 @@ export function StatsWidget({ totalStreak, completedToday, totalHabits }: StatsW
         }}
       />
       
-      <Flex direction="row" style={{ justifyContent: 'space-between' }}>
-        <Flex direction="column">
-          <Text
+      <FlexWidget style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <FlexWidget style={{ flexDirection: 'column' }}>
+          <TextWidget
             text={totalStreak.toString()}
             style={{
               fontSize: 24,
@@ -38,17 +38,17 @@ export function StatsWidget({ totalStreak, completedToday, totalHabits }: StatsW
               color: '#22D3EE',
             }}
           />
-          <Text
+          <TextWidget
             text="Day Streak"
             style={{
               fontSize: 12,
               color: '#a3a3a3',
             }}
           />
-        </Flex>
+        </FlexWidget>
 
-        <Flex direction="column" style={{ alignItems: 'flex-end' }}>
-          <Text
+        <FlexWidget style={{ flexDirection: 'column', alignItems: 'flex-end' }}>
+          <TextWidget
             text={`${completedToday}/${totalHabits}`}
             style={{
               fontSize: 24,
@@ -56,15 +56,15 @@ export function StatsWidget({ totalStreak, completedToday, totalHabits }: StatsW
               color: '#22D3EE',
             }}
           />
-          <Text
+          <TextWidget
             text="Today's Habits"
             style={{
               fontSize: 12,
               color: '#a3a3a3',
             }}
           />
-        </Flex>
-      </Flex>
-    </Flex>
+        </FlexWidget>
+      </FlexWidget>
+    </FlexWidget>
   );
 }
