@@ -15,9 +15,9 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Heatmap } from "@/components/Heatmap";
-import { HabitCard } from "@/components/HabitCard";
-import { ProBanner } from "@/components/ProBanner";
+import { Heatmap } from "@/modules/habits";
+import { HabitCard } from "@/modules/habits";
+import { ProBanner } from "@/modules/subscription";
 import { useColors } from "@/hooks/useColors";
 import {
   getAllHabitsHeatmapData,
