@@ -15,14 +15,14 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Heatmap } from "@/modules/habits";
-import { HabitCard } from "@/modules/habits";
+import { Heatmap, HabitCard, EditHabitModal } from "@/modules/habits";
 import { ProBanner } from "@/modules/subscription";
 import { useColors } from "@/hooks/useColors";
 import {
   getAllHabitsHeatmapData,
   getTodayDate,
   isCompleted,
+  type Habit,
 } from "@/lib/database";
 import { useHabits } from "@/store/habitsStore";
 import { useSubscription } from "@/lib/revenuecat";
@@ -38,12 +38,16 @@ export default function HomeScreen() {
     habits,
     completions,
     toggleHabitCompletion,
+    updateHabit,
+    removeHabit,
     getTotalStreak,
     getStreakForHabit,
   } = useHabits();
   const { isSubscribed } = useSubscription();
   const { userName } = useUser();
   const [showPro, setShowPro] = useState(false);
+  const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const today = getTodayDate();
   const totalStreak = getTotalStreak();
@@ -61,6 +65,23 @@ export default function HomeScreen() {
     } else {
       router.push("/add-habit");
     }
+  };
+
+  const handleEditHabit = (habit: Habit) => {
+    setEditingHabit(habit);
+    setShowEditModal(true);
+  };
+
+  const handleSaveHabit = async (updatedHabit: Habit) => {
+    await updateHabit(updatedHabit);
+    setShowEditModal(false);
+    setEditingHabit(null);
+  };
+
+  const handleDeleteHabit = async (id: string) => {
+    await removeHabit(id);
+    setShowEditModal(false);
+    setEditingHabit(null);
   };
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
@@ -264,6 +285,7 @@ export default function HomeScreen() {
                     completed={isCompleted(completions, habit.id, today)}
                     streak={getStreakForHabit(habit.id)}
                     onToggle={() => toggleHabitCompletion(habit.id, today)}
+                    onLongPress={() => handleEditHabit(habit)}
                   />
                 ))}
               </View>
@@ -297,6 +319,17 @@ export default function HomeScreen() {
         visible={showPro}
         onClose={() => setShowPro(false)}
         mode="upgrade"
+      />
+
+      <EditHabitModal
+        visible={showEditModal}
+        habit={editingHabit}
+        onSave={handleSaveHabit}
+        onDelete={handleDeleteHabit}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditingHabit(null);
+        }}
       />
     </>
   );
