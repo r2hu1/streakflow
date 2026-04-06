@@ -293,7 +293,11 @@ export default function HomeScreen() {
         </ScrollView>
       </View>
 
-      <ProBanner visible={showPro} onClose={() => setShowPro(false)} />
+      <ProBanner
+        visible={showPro}
+        onClose={() => setShowPro(false)}
+        mode="upgrade"
+      />
     </>
   );
 }
