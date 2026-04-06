@@ -2,7 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import React, { useMemo } from "react";
 import { Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { HabitCard } from "@/components/HabitCard";
+import { HabitCard } from "@/modules/habits";
 import { useColors } from "@/hooks/useColors";
 import { getTodayDate, isCompleted } from "@/lib/database";
 import { useHabits } from "@/store/habitsStore";
