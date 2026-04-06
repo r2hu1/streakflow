@@ -71,7 +71,10 @@ export async function deleteHabit(id: string): Promise<void> {
   await AsyncStorage.setItem(HABITS_KEY, JSON.stringify(updated));
   const completions = await getCompletions();
   const updatedCompletions = completions.filter((c) => c.habitId !== id);
-  await AsyncStorage.setItem(COMPLETIONS_KEY, JSON.stringify(updatedCompletions));
+  await AsyncStorage.setItem(
+    COMPLETIONS_KEY,
+    JSON.stringify(updatedCompletions),
+  );
 }
 
 export async function getCompletions(): Promise<Completion[]> {
@@ -80,8 +83,47 @@ export async function getCompletions(): Promise<Completion[]> {
   return JSON.parse(raw) as Completion[];
 }
 
-export async function toggleCompletion(habitId: string, date: string): Promise<boolean> {
+export async function toggleCompletion(
+  habitId: string,
+  date: string,
+  habits?: Habit[],
+): Promise<boolean> {
   const completions = await getCompletions();
+
+  // If habits are provided, check frequency constraints for weekly habits
+  if (habits) {
+    const habit = habits.find((h) => h.id === habitId);
+    if (habit && habit.frequency === "weekly") {
+      // Check if already completed in the same week
+      const inputDate = new Date(date);
+      const existingCompletionsThisWeek = completions.filter((c) => {
+        if (c.habitId !== habitId) return false;
+
+        const completionDate = new Date(c.date);
+
+        // Get the start of the week (Monday) for both dates
+        const getWeekStart = (d: Date) => {
+          const day = d.getDay();
+          const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+          return new Date(d.getFullYear(), d.getMonth(), diff);
+        };
+
+        const inputWeekStart = getWeekStart(inputDate);
+        const completionWeekStart = getWeekStart(completionDate);
+
+        return (
+          inputWeekStart.getTime() === completionWeekStart.getTime() &&
+          c.date !== date // Allow toggling the same date
+        );
+      });
+
+      // If already completed this week (on a different date), don't allow
+      if (existingCompletionsThisWeek.length > 0) {
+        return false;
+      }
+    }
+  }
+
   const existingIndex = completions.findIndex(
     (c) => c.habitId === habitId && c.date === date,
   );
@@ -103,11 +145,18 @@ export async function toggleCompletion(habitId: string, date: string): Promise<b
   }
 }
 
-export function isCompleted(completions: Completion[], habitId: string, date: string): boolean {
+export function isCompleted(
+  completions: Completion[],
+  habitId: string,
+  date: string,
+): boolean {
   return completions.some((c) => c.habitId === habitId && c.date === date);
 }
 
-export function calculateStreak(completions: Completion[], habitId: string): number {
+export function calculateStreak(
+  completions: Completion[],
+  habitId: string,
+): number {
   const today = getTodayDate();
   const habitCompletions = completions
     .filter((c) => c.habitId === habitId)
@@ -137,7 +186,10 @@ export function calculateStreak(completions: Completion[], habitId: string): num
   return streak;
 }
 
-export function calculateLongestStreak(completions: Completion[], habitId: string): number {
+export function calculateLongestStreak(
+  completions: Completion[],
+  habitId: string,
+): number {
   const habitCompletions = completions
     .filter((c) => c.habitId === habitId)
     .map((c) => c.date)
@@ -196,7 +248,9 @@ export function getHeatmapData(
 
   for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
     const dateStr = getDateString(d);
-    const count = completions.filter((c) => c.habitId === habitId && c.date === dateStr).length;
+    const count = completions.filter(
+      (c) => c.habitId === habitId && c.date === dateStr,
+    ).length;
     result.push({ date: dateStr, count });
   }
 
