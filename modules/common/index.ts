@@ -1,0 +1,1 @@
+export { KeyboardAwareScrollViewCompat } from "./KeyboardAwareScrollViewCompat";
