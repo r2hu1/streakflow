@@ -68,7 +68,7 @@ function WelcomeSlide({
         <Animated.View
           style={[
             styles.logoWrap,
-            { backgroundColor: colors.primary, borderRadius: 0 },
+            { backgroundColor: colors.primary, borderRadius: 32 },
             logoStyle,
           ]}
         >
