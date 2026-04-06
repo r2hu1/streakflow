@@ -1,4 +1,10 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import {
   type Completion,
   type Habit,
@@ -10,6 +16,7 @@ import {
   setFirstLaunchDate,
   toggleCompletion,
 } from "@/lib/database";
+import { updateWidgets } from "@/widgets";
 
 interface HabitsContextValue {
   habits: Habit[];
@@ -49,25 +56,32 @@ export function HabitsProvider({ children }: { children: React.ReactNode }) {
   const addHabit = useCallback(async (habit: Habit) => {
     await saveHabit(habit);
     setHabits((prev) => [...prev, habit]);
+    updateWidgets();
   }, []);
 
   const updateHabit = useCallback(async (habit: Habit) => {
     await saveHabit(habit);
     setHabits((prev) => prev.map((h) => (h.id === habit.id ? habit : h)));
+    updateWidgets();
   }, []);
 
   const removeHabit = useCallback(async (id: string) => {
     await deleteHabit(id);
     setHabits((prev) => prev.filter((h) => h.id !== id));
     setCompletions((prev) => prev.filter((c) => c.habitId !== id));
+    updateWidgets();
   }, []);
 
-  const toggleHabitCompletion = useCallback(async (habitId: string, date: string) => {
-    const wasCompleted = await toggleCompletion(habitId, date);
-    const newCompletions = await getCompletions();
-    setCompletions(newCompletions);
-    return wasCompleted;
-  }, []);
+  const toggleHabitCompletion = useCallback(
+    async (habitId: string, date: string) => {
+      const wasCompleted = await toggleCompletion(habitId, date);
+      const newCompletions = await getCompletions();
+      setCompletions(newCompletions);
+      updateWidgets();
+      return wasCompleted;
+    },
+    [habits],
+  );
 
   const getStreakForHabit = useCallback(
     (habitId: string) => calculateStreak(completions, habitId),
