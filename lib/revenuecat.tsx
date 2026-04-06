@@ -1,42 +1,18 @@
 import React, { createContext, useContext } from "react";
-import { Platform } from "react-native";
 import Purchases from "react-native-purchases";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import Constants from "expo-constants";
 
-const REVENUECAT_TEST_API_KEY = process.env.EXPO_PUBLIC_REVENUECAT_TEST_API_KEY;
-const REVENUECAT_IOS_API_KEY = process.env.EXPO_PUBLIC_REVENUECAT_IOS_API_KEY;
 const REVENUECAT_ANDROID_API_KEY =
   process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY;
 
 export const REVENUECAT_ENTITLEMENT_IDENTIFIER = "pro";
 
 function getRevenueCatApiKey(): string | null {
-  if (
-    !REVENUECAT_TEST_API_KEY ||
-    !REVENUECAT_IOS_API_KEY ||
-    !REVENUECAT_ANDROID_API_KEY
-  ) {
+  if (!REVENUECAT_ANDROID_API_KEY) {
     return null;
   }
 
-  if (
-    __DEV__ ||
-    Platform.OS === "web" ||
-    Constants.executionEnvironment === "storeClient"
-  ) {
-    return REVENUECAT_TEST_API_KEY;
-  }
-
-  if (Platform.OS === "ios") {
-    return REVENUECAT_IOS_API_KEY;
-  }
-
-  if (Platform.OS === "android") {
-    return REVENUECAT_ANDROID_API_KEY;
-  }
-
-  return REVENUECAT_TEST_API_KEY;
+  return REVENUECAT_ANDROID_API_KEY;
 }
 
 export let revenueCatInitialized = false;
@@ -44,15 +20,21 @@ export let revenueCatInitialized = false;
 export function initializeRevenueCat() {
   const apiKey = getRevenueCatApiKey();
   if (!apiKey) {
-    console.warn(
-      "RevenueCat: API keys not configured. Subscription features will be limited.",
+    console.error("RevenueCat: Android API key not configured!");
+    console.error(
+      "Set EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY in your .env file",
     );
     return;
   }
 
-  Purchases.setLogLevel(Purchases.LOG_LEVEL.DEBUG);
-  Purchases.configure({ apiKey });
-  revenueCatInitialized = true;
+  try {
+    Purchases.setLogLevel(Purchases.LOG_LEVEL.DEBUG);
+    Purchases.configure({ apiKey });
+    revenueCatInitialized = true;
+    console.log("✅ RevenueCat initialized successfully");
+  } catch (error: any) {
+    console.error("❌ Failed to initialize RevenueCat:", error.message);
+  }
 }
 
 function useSubscriptionContext() {
@@ -70,9 +52,23 @@ function useSubscriptionContext() {
   const offeringsQuery = useQuery({
     queryKey: ["revenuecat", "offerings"],
     queryFn: async () => {
-      if (!revenueCatInitialized) return null;
-      const offerings = await Purchases.getOfferings();
-      return offerings;
+      if (!revenueCatInitialized) {
+        console.warn("RevenueCat not initialized, returning null offerings");
+        return null;
+      }
+      try {
+        const offerings = await Purchases.getOfferings();
+        console.log("Offerings fetched:", offerings.current?.identifier);
+        if (!offerings.current) {
+          console.warn(
+            "⚠️ No current offering configured in RevenueCat dashboard",
+          );
+        }
+        return offerings;
+      } catch (error: any) {
+        console.error("Failed to fetch offerings:", error.message);
+        throw error;
+      }
     },
     staleTime: 300 * 1000,
     enabled: revenueCatInitialized,
@@ -80,11 +76,30 @@ function useSubscriptionContext() {
 
   const purchaseMutation = useMutation({
     mutationFn: async (packageToPurchase: any) => {
-      const { customerInfo } =
-        await Purchases.purchasePackage(packageToPurchase);
-      return customerInfo;
+      console.log(
+        "Attempting to purchase package:",
+        packageToPurchase?.identifier,
+      );
+      if (!revenueCatInitialized) {
+        throw new Error("RevenueCat not initialized. Check your API keys.");
+      }
+      try {
+        const { customerInfo } =
+          await Purchases.purchasePackage(packageToPurchase);
+        console.log("Purchase successful");
+        return customerInfo;
+      } catch (error: any) {
+        console.error("Purchase failed:", error.message);
+        throw error;
+      }
     },
-    onSuccess: () => customerInfoQuery.refetch(),
+    onSuccess: () => {
+      console.log("Refetching customer info after purchase");
+      customerInfoQuery.refetch();
+    },
+    onError: (error: any) => {
+      console.error("Purchase mutation error:", error);
+    },
   });
 
   const restoreMutation = useMutation({
@@ -98,7 +113,6 @@ function useSubscriptionContext() {
     customerInfoQuery.data?.entitlements.active?.[
       REVENUECAT_ENTITLEMENT_IDENTIFIER
     ] !== undefined;
-  console.log(isSubscribed);
 
   return {
     customerInfo: customerInfoQuery.data,

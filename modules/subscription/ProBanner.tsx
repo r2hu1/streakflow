@@ -149,14 +149,22 @@ export function ProBanner({
   const handleConfirmPurchase = async () => {
     setConfirmingPkg(null);
     setErrorMsg(null);
+
+    if (!selectedPackage) {
+      setErrorMsg("No package selected. Please try again.");
+      return;
+    }
+
     try {
       await purchase(selectedPackage);
       // Refetch customer info to update subscription status
       await refetchCustomerInfo();
       onClose();
     } catch (e: any) {
+      console.error("Purchase error:", e);
       if (!e?.userCancelled) {
-        setErrorMsg(e?.message ?? "Purchase failed. Please try again.");
+        const errorMessage = e?.message || "Purchase failed";
+        setErrorMsg(`${errorMessage}. Please check your configuration.`);
       }
     }
   };
