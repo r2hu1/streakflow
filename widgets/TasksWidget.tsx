@@ -1,5 +1,5 @@
 import React from 'react';
-import { Flex, Text, View } from 'react-native-android-widget';
+import { FlexWidget, TextWidget } from 'react-native-android-widget';
 
 interface Task {
   id: string;
@@ -14,7 +14,7 @@ interface TasksWidgetProps {
 
 export function TasksWidget({ tasks }: TasksWidgetProps) {
   return (
-    <Flex
+    <FlexWidget
       style={{
         height: 'match_parent',
         width: 'match_parent',
@@ -23,7 +23,7 @@ export function TasksWidget({ tasks }: TasksWidgetProps) {
         borderRadius: 16,
       }}
     >
-      <Text
+      <TextWidget
         text="Today's Tasks"
         style={{
           fontSize: 14,
@@ -33,41 +33,41 @@ export function TasksWidget({ tasks }: TasksWidgetProps) {
         }}
       />
 
-      <Flex direction="column" style={{ gap: 8 }}>
+      <FlexWidget style={{ flexDirection: 'column', flexGap: 8 }}>
         {tasks.slice(0, 5).map((task) => (
-          <Flex
+          <FlexWidget
             key={task.id}
-            direction="row"
             style={{
+              flexDirection: 'row',
               alignItems: 'center',
-              gap: 8,
+              flexGap: 8,
               backgroundColor: '#141414',
               padding: 8,
               borderRadius: 8,
             }}
           >
-            <View
+            <FlexWidget
               style={{
                 width: 16,
                 height: 16,
                 borderRadius: 4,
                 borderWidth: 2,
                 borderColor: task.color || '#22D3EE',
-                backgroundColor: task.completed ? (task.color || '#22D3EE') : 'transparent',
+                backgroundColor: task.completed ? (task.color || '#22D3EE') : '#00000000',
               }}
             />
-            <Text
+            <TextWidget
               text={task.name}
               style={{
                 fontSize: 14,
                 color: task.completed ? '#737373' : '#fafafa',
-                textDecorationLine: task.completed ? 'line-through' : 'none',
+                // Note: textDecorationLine is NOT supported in TextWidget
               }}
             />
-          </Flex>
+          </FlexWidget>
         ))}
         {tasks.length > 5 && (
-          <Text
+          <TextWidget
             text={`+ ${tasks.length - 5} more tasks`}
             style={{
               fontSize: 12,
@@ -78,7 +78,7 @@ export function TasksWidget({ tasks }: TasksWidgetProps) {
           />
         )}
         {tasks.length === 0 && (
-          <Text
+          <TextWidget
             text="No habits for today"
             style={{
               fontSize: 14,
@@ -87,7 +87,7 @@ export function TasksWidget({ tasks }: TasksWidgetProps) {
             }}
           />
         )}
-      </Flex>
-    </Flex>
+      </FlexWidget>
+    </FlexWidget>
   );
 }
