@@ -3,7 +3,6 @@ import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
   Dimensions,
   FlatList,
   Keyboard,
@@ -23,18 +22,15 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withDelay,
-  withRepeat,
   withSequence,
   withSpring,
   withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
-import { useSubscription } from "@/lib/revenuecat";
 import { useUser } from "@/store/userStore";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const TRIAL_DAYS = 7;
 
 // ─── Slide 1: Welcome & Name ─────────────────────────────────────────────────
 function WelcomeSlide({
@@ -441,319 +437,8 @@ function StatsSlide({ colors }: { colors: ReturnType<typeof useColors> }) {
   );
 }
 
-// ─── Slide 5: Upgrade ─────────────────────────────────────────────────────────
-const PRO_FEATURES = [
-  { icon: "trending-up" as const, text: "Unlimited habits" },
-  { icon: "bar-chart-2" as const, text: "Advanced stats & insights" },
-  { icon: "sun" as const, text: "AI daily tips (coming soon)" },
-  { icon: "download" as const, text: "Export your data" },
-  { icon: "moon" as const, text: "Premium themes" },
-];
-
-function UpgradeSlide({
-  colors,
-  onSkipTrial,
-  onStartTrial,
-}: {
-  colors: ReturnType<typeof useColors>;
-  onSkipTrial: () => void;
-  onStartTrial: () => void;
-}) {
-  const { offerings, isPurchasing, purchase } = useSubscription();
-  const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">(
-    "monthly",
-  );
-  const [confirmingPkg, setConfirmingPkg] = useState<any>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  const currentOffering = offerings?.current;
-  const monthlyPkg = currentOffering?.availablePackages.find(
-    (p) => p.packageType === "MONTHLY" || p.identifier === "$rc_monthly",
-  );
-  const yearlyPkg = currentOffering?.availablePackages.find(
-    (p) => p.packageType === "ANNUAL" || p.identifier === "$rc_annual",
-  );
-  const selectedPackage = selectedPlan === "monthly" ? monthlyPkg : yearlyPkg;
-
-  const handleSubscribe = () => {
-    if (!selectedPackage) return;
-    setConfirmingPkg(selectedPackage);
-  };
-
-  const handleConfirm = async () => {
-    setConfirmingPkg(null);
-    setErrorMsg(null);
-    try {
-      await purchase(selectedPackage);
-      onStartTrial();
-    } catch (e: any) {
-      if (!e?.userCancelled) {
-        setErrorMsg(e?.message ?? "Purchase failed. Please try again.");
-      }
-    }
-  };
-
-  return (
-    <>
-      <View style={[styles.slide, { width: SCREEN_WIDTH }]}>
-        <View style={[styles.upgradeContent]}>
-          <Animated.View
-            entering={FadeIn.duration(400)}
-            style={styles.proBadgeWrap}
-          >
-            <View
-              style={[styles.proBadge, { backgroundColor: colors.primary }]}
-            >
-              <Text
-                style={[
-                  styles.proBadgeText,
-                  { color: colors.primaryForeground },
-                ]}
-              >
-                PRO
-              </Text>
-            </View>
-          </Animated.View>
-
-          <Animated.Text
-            entering={FadeInDown.delay(200).duration(500)}
-            style={[styles.upgTitle, { color: colors.foreground }]}
-          >
-            Start your{"\n"}
-            {TRIAL_DAYS}-day free trial
-          </Animated.Text>
-          <Animated.Text
-            entering={FadeInDown.delay(350).duration(500)}
-            style={[styles.upgSub, { color: colors.mutedForeground }]}
-          >
-            No charge today. Cancel anytime.
-          </Animated.Text>
-
-          <Animated.View
-            entering={FadeInUp.delay(450).duration(500)}
-            style={[
-              styles.featuresCard,
-              { backgroundColor: colors.card, borderRadius: 20 },
-            ]}
-          >
-            {PRO_FEATURES.map((f, i) => (
-              <View key={i} style={styles.featureRow}>
-                <View
-                  style={[
-                    styles.featureIconBox,
-                    {
-                      backgroundColor: colors.primary + "22",
-                      borderRadius: 10,
-                    },
-                  ]}
-                >
-                  <Feather name={f.icon} size={16} color={colors.primary} />
-                </View>
-                <Text
-                  style={[styles.featureText, { color: colors.foreground }]}
-                >
-                  {f.text}
-                </Text>
-                <Feather
-                  name="check"
-                  size={14}
-                  color={colors.primary}
-                  style={{ marginLeft: "auto" }}
-                />
-              </View>
-            ))}
-          </Animated.View>
-
-          <Animated.View
-            entering={FadeInUp.delay(600).duration(500)}
-            style={styles.plansRow}
-          >
-            {[
-              {
-                id: "monthly" as const,
-                label: "Monthly",
-                pkg: monthlyPkg,
-                save: null,
-              },
-              {
-                id: "yearly" as const,
-                label: "Yearly",
-                pkg: yearlyPkg,
-                save: "Best value",
-              },
-            ].map((plan) => (
-              <Pressable
-                key={plan.id}
-                onPress={() => setSelectedPlan(plan.id)}
-                style={[
-                  styles.planCard,
-                  {
-                    backgroundColor: colors.card,
-                    borderRadius: 14,
-                    borderWidth: 2,
-                    borderColor:
-                      selectedPlan === plan.id ? colors.primary : colors.border,
-                  },
-                ]}
-              >
-                {plan.save && (
-                  <View
-                    style={[
-                      styles.saveBadge,
-                      { backgroundColor: colors.primary },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.saveBadgeText,
-                        { color: colors.primaryForeground },
-                      ]}
-                    >
-                      {plan.save}
-                    </Text>
-                  </View>
-                )}
-                <Text style={[styles.planLabel, { color: colors.foreground }]}>
-                  {plan.label}
-                </Text>
-                <Text style={[styles.planPrice, { color: colors.primary }]}>
-                  {plan.pkg?.product?.priceString ?? "—"}
-                </Text>
-              </Pressable>
-            ))}
-          </Animated.View>
-
-          {errorMsg && (
-            <Text style={[styles.errorText, { color: colors.destructive }]}>
-              {errorMsg}
-            </Text>
-          )}
-
-          <Animated.View
-            entering={FadeInUp.delay(700).duration(500)}
-            style={styles.ctaWrap}
-          >
-            <Pressable
-              onPress={handleSubscribe}
-              disabled={isPurchasing || !selectedPackage}
-              style={[
-                styles.ctaBtn,
-                {
-                  backgroundColor: colors.primary,
-                  borderRadius: 16,
-                  opacity: isPurchasing || !selectedPackage ? 0.7 : 1,
-                },
-              ]}
-            >
-              {isPurchasing ? (
-                <ActivityIndicator color={colors.primaryForeground} />
-              ) : (
-                <>
-                  <Text
-                    style={[
-                      styles.ctaBtnText,
-                      { color: colors.primaryForeground },
-                    ]}
-                  >
-                    Start {TRIAL_DAYS}-Day Free Trial
-                  </Text>
-                  <Text
-                    style={[
-                      styles.ctaBtnSub,
-                      { color: colors.primaryForeground + "BB" },
-                    ]}
-                  >
-                    Then {selectedPackage?.product?.priceString ?? "—"}
-                  </Text>
-                </>
-              )}
-            </Pressable>
-
-            <Pressable onPress={onSkipTrial} style={styles.skipBtn}>
-              <Text
-                style={[styles.skipText, { color: colors.mutedForeground }]}
-              >
-                Maybe later — start free trial anyway
-              </Text>
-            </Pressable>
-          </Animated.View>
-        </View>
-      </View>
-
-      {/* Confirm modal */}
-      {confirmingPkg && (
-        <View style={StyleSheet.absoluteFill}>
-          <Pressable
-            style={styles.confirmOverlay}
-            onPress={() => setConfirmingPkg(null)}
-          >
-            <Pressable
-              style={[
-                styles.confirmBox,
-                { backgroundColor: colors.card, borderRadius: 20 },
-              ]}
-              onPress={(e) => e.stopPropagation()}
-            >
-              <Text style={[styles.confirmTitle, { color: colors.foreground }]}>
-                Confirm Purchase
-              </Text>
-              <Text
-                style={[
-                  styles.confirmMessage,
-                  { color: colors.mutedForeground },
-                ]}
-              >
-                Purchase{" "}
-                <Text style={{ color: colors.primary, fontWeight: "600" }}>
-                  {confirmingPkg?.product?.title ?? "StreakFlow Pro"}
-                </Text>{" "}
-                for{" "}
-                <Text style={{ color: colors.primary, fontWeight: "600" }}>
-                  {confirmingPkg?.product?.priceString ?? "..."}
-                </Text>
-                ?{"\n"}This uses RevenueCat's test store.
-              </Text>
-              <View style={styles.confirmBtns}>
-                <Pressable
-                  onPress={() => setConfirmingPkg(null)}
-                  style={[
-                    styles.confirmBtn,
-                    { backgroundColor: colors.secondary, borderRadius: 12 },
-                  ]}
-                >
-                  <Text
-                    style={[styles.confirmBtnTxt, { color: colors.foreground }]}
-                  >
-                    Cancel
-                  </Text>
-                </Pressable>
-                <Pressable
-                  onPress={handleConfirm}
-                  style={[
-                    styles.confirmBtn,
-                    { backgroundColor: colors.primary, borderRadius: 12 },
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.confirmBtnTxt,
-                      { color: colors.primaryForeground },
-                    ]}
-                  >
-                    Purchase
-                  </Text>
-                </Pressable>
-              </View>
-            </Pressable>
-          </Pressable>
-        </View>
-      )}
-    </>
-  );
-}
-
 // ─── Main Onboarding ──────────────────────────────────────────────────────────
-const SLIDES = ["welcome", "habits", "heatmap", "stats", "upgrade"] as const;
+const SLIDES = ["welcome", "habits", "heatmap", "stats"] as const;
 
 export default function OnboardingScreen() {
   const colors = useColors();
@@ -811,14 +496,6 @@ export default function OnboardingScreen() {
         return <HeatmapSlide colors={colors} />;
       case "stats":
         return <StatsSlide colors={colors} />;
-      case "upgrade":
-        return (
-          <UpgradeSlide
-            colors={colors}
-            onSkipTrial={handleFinish}
-            onStartTrial={handleFinish}
-          />
-        );
     }
   };
 
@@ -883,6 +560,40 @@ export default function OnboardingScreen() {
               {currentIndex === 0 && !userName.trim()
                 ? "Enter your name"
                 : "Continue"}
+            </Text>
+            <Feather
+              name="arrow-right"
+              size={18}
+              color={
+                canProgress ? colors.primaryForeground : colors.mutedForeground
+              }
+            />
+          </Pressable>
+        )}
+
+        {isLastSlide && (
+          <Pressable
+            onPress={handleFinish}
+            disabled={!canProgress}
+            style={[
+              styles.nextBtn,
+              {
+                backgroundColor: canProgress ? colors.primary : colors.border,
+                borderRadius: 16,
+              },
+            ]}
+          >
+            <Text
+              style={[
+                styles.nextBtnText,
+                {
+                  color: canProgress
+                    ? colors.primaryForeground
+                    : colors.mutedForeground,
+                },
+              ]}
+            >
+              Get Started
             </Text>
             <Feather
               name="arrow-right"
@@ -964,62 +675,6 @@ const styles = StyleSheet.create({
   statCol: { alignItems: "center", gap: 6, flex: 1 },
   barTrack: { flex: 1, justifyContent: "flex-end", width: 32 },
   barLabel: { fontSize: 10 },
-  // Upgrade slide
-  upgradeContent: {
-    flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    gap: 14,
-    justifyContent: "center",
-  },
-  proBadgeWrap: { alignItems: "center" },
-  proBadge: { paddingHorizontal: 18, paddingVertical: 7, borderRadius: 20 },
-  proBadgeText: { fontSize: 13, fontWeight: "800", letterSpacing: 2 },
-  upgTitle: {
-    fontSize: 34,
-    fontWeight: "800",
-    textAlign: "center",
-    lineHeight: 40,
-  },
-  upgSub: { fontSize: 15, textAlign: "center", lineHeight: 22 },
-  featuresCard: { padding: 16, gap: 12 },
-  featureRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  featureIconBox: {
-    width: 34,
-    height: 34,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  featureText: { fontSize: 14, fontWeight: "500" },
-  plansRow: { flexDirection: "row", gap: 12, width: "100%" },
-  planCard: { flex: 1, padding: 14, gap: 4, alignItems: "center" },
-  saveBadge: {
-    position: "absolute",
-    top: -10,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-  },
-  saveBadgeText: { fontSize: 9, fontWeight: "700" },
-  planLabel: { fontSize: 13, fontWeight: "600" },
-  planPrice: { fontSize: 20, fontWeight: "700" },
-  errorText: { fontSize: 13, textAlign: "center" },
-  ctaWrap: { gap: 12 },
-  ctaBtn: {
-    height: 58,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 2,
-  },
-  ctaBtnText: { fontSize: 16, fontWeight: "700" },
-  ctaBtnSub: { fontSize: 12 },
-  skipBtn: { alignItems: "center", paddingVertical: 6 },
-  skipText: { fontSize: 13 },
-  // Footer
   footer: { paddingHorizontal: 24, paddingTop: 16, gap: 20 },
   dots: {
     flexDirection: "row",
@@ -1036,23 +691,4 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   nextBtnText: { fontSize: 17, fontWeight: "700" },
-  // Confirm modal
-  confirmOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 24,
-  },
-  confirmBox: { width: "100%", padding: 24, gap: 16 },
-  confirmTitle: { fontSize: 20, fontWeight: "700", textAlign: "center" },
-  confirmMessage: { fontSize: 15, lineHeight: 22, textAlign: "center" },
-  confirmBtns: { flexDirection: "row", gap: 12, marginTop: 4 },
-  confirmBtn: {
-    flex: 1,
-    height: 48,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  confirmBtnTxt: { fontSize: 15, fontWeight: "600" },
 });

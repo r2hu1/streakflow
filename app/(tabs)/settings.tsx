@@ -1,7 +1,7 @@
 import { Feather } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   Alert,
   Platform,
@@ -15,9 +15,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ProBanner } from "@/modules/subscription";
 import { useColors } from "@/hooks/useColors";
-import { useSubscription } from "@/lib/revenuecat";
 import { useHabits } from "@/store/habitsStore";
 import { useThemeStore } from "@/store/themeStore";
 import { useUser } from "@/store/userStore";
@@ -79,8 +77,6 @@ export default function SettingsScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const deviceColorScheme = useColorScheme();
-  const [showProBanner, setShowProBanner] = useState(false);
-  const { isSubscribed, isLoading, offerings } = useSubscription();
   const { theme, setTheme, loadTheme } = useThemeStore();
   const { habits } = useHabits();
   const { userName } = useUser();
@@ -92,11 +88,6 @@ export default function SettingsScreen() {
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
-
-  const currentPlan = isSubscribed ? "Pro" : "Free";
-  const monthlyPkg = offerings?.current?.availablePackages.find(
-    (p) => p.packageType === "MONTHLY" || p.identifier === "$rc_monthly",
-  );
 
   const themeLabel =
     theme === "system" ? "System" : theme === "dark" ? "Dark" : "Light";
@@ -114,7 +105,6 @@ export default function SettingsScreen() {
             try {
               await AsyncStorage.removeItem("streakflow_onboarding_complete");
               await AsyncStorage.removeItem("streakflow_user_name");
-              await AsyncStorage.removeItem("streakflow_trial_start");
               router.replace("/onboarding");
             } catch (error) {
               console.error("Reset error:", error);
@@ -150,7 +140,6 @@ export default function SettingsScreen() {
       const filename = `streakflow_export_${new Date().toISOString().split("T")[0]}.json`;
 
       if (Platform.OS === "web") {
-        // Web export: download file
         const blob = new Blob([jsonString], { type: "application/json" });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
@@ -161,14 +150,12 @@ export default function SettingsScreen() {
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
       } else {
-        // Mobile export: use native share dialog
         try {
           await Share.share({
             message: jsonString,
             title: "Export StreakFlow Data",
           });
         } catch (error) {
-          // Fallback to clipboard if share fails
           await Clipboard.setStringAsync(jsonString);
           Alert.alert("Success", "Data copied to clipboard");
         }
@@ -180,291 +167,168 @@ export default function SettingsScreen() {
   };
 
   return (
-    <>
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <ScrollView
-          contentContainerStyle={[
-            styles.scroll,
-            { paddingTop: topPad + 24, paddingBottom: bottomPad + 80 },
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.scroll,
+          { paddingTop: topPad + 24, paddingBottom: bottomPad + 80 },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={[styles.title, { color: colors.foreground }]}>
+          Settings
+        </Text>
+
+        <View
+          style={[
+            styles.section,
+            { backgroundColor: colors.card, borderRadius: 16 },
           ]}
-          showsVerticalScrollIndicator={false}
         >
-          <Text style={[styles.title, { color: colors.foreground }]}>
-            Settings
+          <Text
+            style={[styles.sectionHeader, { color: colors.mutedForeground }]}
+          >
+            Appearance
           </Text>
-
-          {!isSubscribed && (
-            <Pressable
-              onPress={() => setShowProBanner(true)}
-              style={[
-                styles.proCard,
-                {
-                  backgroundColor: colors.primary + "15",
-                  borderRadius: 20,
-                  borderColor: colors.primary + "44",
-                  borderWidth: 1,
-                },
-              ]}
-            >
-              <View style={styles.proCardContent}>
-                <View
-                  style={[styles.proBadge, { backgroundColor: colors.primary }]}
-                >
-                  <Text
-                    style={[
-                      styles.proBadgeText,
-                      { color: colors.primaryForeground },
-                    ]}
-                  >
-                    PRO
-                  </Text>
-                </View>
-                <View style={styles.proText}>
-                  <Text style={[styles.proTitle, { color: colors.foreground }]}>
-                    Upgrade to Pro
-                  </Text>
-                  <Text
-                    style={[
-                      styles.proSubtitle,
-                      { color: colors.mutedForeground },
-                    ]}
-                  >
-                    {monthlyPkg?.product?.priceString ?? "-"}/month — Unlimited
-                    habits & more
-                  </Text>
-                </View>
-              </View>
-              <Feather name="arrow-right" size={20} color={colors.primary} />
-            </Pressable>
-          )}
-
-          {isSubscribed && (
+          <Pressable
+            onPress={() => {
+              const nextTheme =
+                theme === "light"
+                  ? "dark"
+                  : theme === "dark"
+                    ? "system"
+                    : "light";
+              setTheme(nextTheme);
+            }}
+            style={({ pressed }) => [
+              styles.row,
+              { opacity: pressed ? 0.7 : 1 },
+            ]}
+          >
             <View
               style={[
-                styles.proCard,
+                styles.rowIcon,
+                { backgroundColor: colors.primary + "22", borderRadius: 10 },
+              ]}
+            >
+              <Feather name="moon" size={18} color={colors.primary} />
+            </View>
+            <Text style={[styles.rowLabel, { color: colors.foreground }]}>
+              Theme
+            </Text>
+            <View style={styles.rowRight}>
+              <Text
+                style={[styles.rowValue, { color: colors.mutedForeground }]}
+              >
+                {themeLabel}
+              </Text>
+              <Feather
+                name="chevron-right"
+                size={16}
+                color={colors.mutedForeground}
+              />
+            </View>
+          </Pressable>
+        </View>
+
+        <View
+          style={[
+            styles.section,
+            { backgroundColor: colors.card, borderRadius: 16 },
+          ]}
+        >
+          <Text
+            style={[styles.sectionHeader, { color: colors.mutedForeground }]}
+          >
+            Data & Privacy
+          </Text>
+          <Pressable
+            onPress={handleExportData}
+            style={({ pressed }) => [
+              styles.row,
+              { opacity: pressed ? 0.7 : 1 },
+            ]}
+          >
+            <View
+              style={[
+                styles.rowIcon,
+                { backgroundColor: colors.primary + "22", borderRadius: 10 },
+              ]}
+            >
+              <Feather name="download" size={18} color={colors.primary} />
+            </View>
+            <Text style={[styles.rowLabel, { color: colors.foreground }]}>
+              Export Data
+            </Text>
+            <View style={styles.rowRight}>
+              <Feather
+                name="chevron-right"
+                size={16}
+                color={colors.mutedForeground}
+              />
+            </View>
+          </Pressable>
+        </View>
+
+        <View
+          style={[
+            styles.section,
+            { backgroundColor: colors.card, borderRadius: 16 },
+          ]}
+        >
+          <Text
+            style={[styles.sectionHeader, { color: colors.mutedForeground }]}
+          >
+            About
+          </Text>
+          <SettingsRow
+            icon="info"
+            label="Version"
+            value="1.0.0"
+            colors={colors}
+          />
+          <SettingsRow
+            icon="zap"
+            label="StreakFlow"
+            value="Made with focus"
+            colors={colors}
+          />
+          <Pressable
+            onPress={handleResetOnboarding}
+            style={({ pressed }) => [
+              styles.row,
+              { opacity: pressed ? 0.7 : 1 },
+            ]}
+          >
+            <View
+              style={[
+                styles.rowIcon,
                 {
-                  backgroundColor: colors.primary + "15",
-                  borderRadius: 20,
-                  borderColor: colors.primary + "44",
-                  borderWidth: 1,
+                  backgroundColor: colors.destructive + "22",
+                  borderRadius: 10,
                 },
               ]}
             >
-              <View style={styles.proCardContent}>
-                <View
-                  style={[styles.proBadge, { backgroundColor: colors.primary }]}
-                >
-                  <Text
-                    style={[
-                      styles.proBadgeText,
-                      { color: colors.primaryForeground },
-                    ]}
-                  >
-                    PRO
-                  </Text>
-                </View>
-                <View style={styles.proText}>
-                  <Text style={[styles.proTitle, { color: colors.foreground }]}>
-                    StreakFlow Pro
-                  </Text>
-                  <Text
-                    style={[
-                      styles.proSubtitle,
-                      { color: colors.mutedForeground },
-                    ]}
-                  >
-                    Active — All features unlocked
-                  </Text>
-                </View>
-              </View>
-              <Feather name="check-circle" size={20} color={colors.primary} />
-            </View>
-          )}
-
-          <View
-            style={[
-              styles.section,
-              { backgroundColor: colors.card, borderRadius: 16 },
-            ]}
-          >
-            <Text
-              style={[styles.sectionHeader, { color: colors.mutedForeground }]}
-            >
-              Appearance
-            </Text>
-            <Pressable
-              onPress={() => {
-                const nextTheme =
-                  theme === "light"
-                    ? "dark"
-                    : theme === "dark"
-                      ? "system"
-                      : "light";
-                setTheme(nextTheme);
-              }}
-              style={({ pressed }) => [
-                styles.row,
-                { opacity: pressed ? 0.7 : 1 },
-              ]}
-            >
-              <View
-                style={[
-                  styles.rowIcon,
-                  { backgroundColor: colors.primary + "22", borderRadius: 10 },
-                ]}
-              >
-                <Feather name="moon" size={18} color={colors.primary} />
-              </View>
-              <Text style={[styles.rowLabel, { color: colors.foreground }]}>
-                Theme
-              </Text>
-              <View style={styles.rowRight}>
-                <Text
-                  style={[styles.rowValue, { color: colors.mutedForeground }]}
-                >
-                  {themeLabel}
-                </Text>
-                <Feather
-                  name="chevron-right"
-                  size={16}
-                  color={colors.mutedForeground}
-                />
-              </View>
-            </Pressable>
-          </View>
-
-          <View
-            style={[
-              styles.section,
-              { backgroundColor: colors.card, borderRadius: 16 },
-            ]}
-          >
-            <Text
-              style={[styles.sectionHeader, { color: colors.mutedForeground }]}
-            >
-              Subscription
-            </Text>
-            <SettingsRow
-              icon="credit-card"
-              label="Current Plan"
-              value={currentPlan}
-              colors={colors}
-            />
-            {!isSubscribed && (
-              <SettingsRow
-                icon="star"
-                label="Upgrade to Pro"
-                onPress={() => setShowProBanner(true)}
-                colors={colors}
+              <Feather
+                name="refresh-ccw"
+                size={18}
+                color={colors.destructive}
               />
-            )}
-          </View>
-
-          <View
-            style={[
-              styles.section,
-              { backgroundColor: colors.card, borderRadius: 16 },
-            ]}
-          >
-            <Text
-              style={[styles.sectionHeader, { color: colors.mutedForeground }]}
-            >
-              Data & Privacy
+            </View>
+            <Text style={[styles.rowLabel, { color: colors.destructive }]}>
+              Reset Onboarding
             </Text>
-            <Pressable
-              onPress={handleExportData}
-              style={({ pressed }) => [
-                styles.row,
-                { opacity: pressed ? 0.7 : 1 },
-              ]}
-            >
-              <View
-                style={[
-                  styles.rowIcon,
-                  { backgroundColor: colors.primary + "22", borderRadius: 10 },
-                ]}
-              >
-                <Feather name="download" size={18} color={colors.primary} />
-              </View>
-              <Text style={[styles.rowLabel, { color: colors.foreground }]}>
-                Export Data
-              </Text>
-              <View style={styles.rowRight}>
-                <Feather
-                  name="chevron-right"
-                  size={16}
-                  color={colors.mutedForeground}
-                />
-              </View>
-            </Pressable>
-          </View>
-
-          <View
-            style={[
-              styles.section,
-              { backgroundColor: colors.card, borderRadius: 16 },
-            ]}
-          >
-            <Text
-              style={[styles.sectionHeader, { color: colors.mutedForeground }]}
-            >
-              About
-            </Text>
-            <SettingsRow
-              icon="info"
-              label="Version"
-              value="1.0.0"
-              colors={colors}
-            />
-            <SettingsRow
-              icon="zap"
-              label="StreakFlow"
-              value="Made with focus"
-              colors={colors}
-            />
-            <Pressable
-              onPress={handleResetOnboarding}
-              style={({ pressed }) => [
-                styles.row,
-                { opacity: pressed ? 0.7 : 1 },
-              ]}
-            >
-              <View
-                style={[
-                  styles.rowIcon,
-                  {
-                    backgroundColor: colors.destructive + "22",
-                    borderRadius: 10,
-                  },
-                ]}
-              >
-                <Feather
-                  name="refresh-ccw"
-                  size={18}
-                  color={colors.destructive}
-                />
-              </View>
-              <Text style={[styles.rowLabel, { color: colors.destructive }]}>
-                Reset Onboarding
-              </Text>
-              <View style={styles.rowRight}>
-                <Feather
-                  name="chevron-right"
-                  size={16}
-                  color={colors.mutedForeground}
-                />
-              </View>
-            </Pressable>
-          </View>
-        </ScrollView>
-      </View>
-
-      <ProBanner
-        visible={showProBanner}
-        onClose={() => setShowProBanner(false)}
-        mode="upgrade"
-      />
-    </>
+            <View style={styles.rowRight}>
+              <Feather
+                name="chevron-right"
+                size={16}
+                color={colors.mutedForeground}
+              />
+            </View>
+          </Pressable>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -472,27 +336,6 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   scroll: { paddingHorizontal: 20, gap: 20 },
   title: { fontSize: 32, fontWeight: "700" },
-  proCard: {
-    padding: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  proCardContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 14,
-    flex: 1,
-  },
-  proBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  proBadgeText: { fontSize: 11, fontWeight: "700", letterSpacing: 1.5 },
-  proText: { flex: 1, gap: 2 },
-  proTitle: { fontSize: 16, fontWeight: "600" },
-  proSubtitle: { fontSize: 13 },
   section: { overflow: "hidden" },
   sectionHeader: {
     fontSize: 12,

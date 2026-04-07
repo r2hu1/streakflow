@@ -14,12 +14,6 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ErrorBoundary } from "@/modules/errors";
-import { TrialExpiredGate } from "@/modules/subscription";
-import {
-  initializeRevenueCat,
-  SubscriptionProvider,
-  useSubscription,
-} from "@/lib/revenuecat";
 import { HabitsProvider } from "@/store/habitsStore";
 import { useThemeStore } from "@/store/themeStore";
 import { UserProvider, useUser } from "@/store/userStore";
@@ -28,19 +22,12 @@ import { Platform } from "react-native";
 
 SplashScreen.preventAutoHideAsync();
 
-try {
-  initializeRevenueCat();
-} catch (err: any) {
-  console.warn("RevenueCat not configured:", err?.message);
-}
-
 registerWidgets();
 
 const queryClient = new QueryClient();
 
 function AppGate({ children }: { children: React.ReactNode }) {
-  const { onboardingComplete, isTrialExpired, isLoading } = useUser();
-  const { isSubscribed } = useSubscription();
+  const { onboardingComplete, isLoading } = useUser();
   const router = useRouter();
   const segments = useSegments();
 
@@ -54,15 +41,7 @@ function AppGate({ children }: { children: React.ReactNode }) {
     }
   }, [isLoading, onboardingComplete, segments]);
 
-  const showTrialGate =
-    !isLoading && onboardingComplete && isTrialExpired && !isSubscribed;
-
-  return (
-    <>
-      {children}
-      <TrialExpiredGate visible={showTrialGate} />
-    </>
-  );
+  return <>{children}</>;
 }
 
 function RootLayoutNav() {
@@ -113,19 +92,17 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
-          <SubscriptionProvider>
-            <UserProvider>
-              <HabitsProvider>
-                <GestureHandlerRootView style={{ flex: 1 }}>
-                  <KeyboardProvider>
-                    <AppGate>
-                      <RootLayoutNav />
-                    </AppGate>
-                  </KeyboardProvider>
-                </GestureHandlerRootView>
-              </HabitsProvider>
-            </UserProvider>
-          </SubscriptionProvider>
+          <UserProvider>
+            <HabitsProvider>
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <KeyboardProvider>
+                  <AppGate>
+                    <RootLayoutNav />
+                  </AppGate>
+                </KeyboardProvider>
+              </GestureHandlerRootView>
+            </HabitsProvider>
+          </UserProvider>
         </QueryClientProvider>
       </ErrorBoundary>
     </SafeAreaProvider>

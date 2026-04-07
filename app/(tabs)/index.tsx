@@ -16,7 +16,6 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Heatmap, HabitCard, EditHabitModal } from "@/modules/habits";
-import { ProBanner } from "@/modules/subscription";
 import { useColors } from "@/hooks/useColors";
 import {
   getAllHabitsHeatmapData,
@@ -25,10 +24,7 @@ import {
   type Habit,
 } from "@/lib/database";
 import { useHabits } from "@/store/habitsStore";
-import { useSubscription } from "@/lib/revenuecat";
 import { useUser } from "@/store/userStore";
-
-const FREE_HABIT_LIMIT = 3;
 
 export default function HomeScreen() {
   const colors = useColors();
@@ -43,9 +39,7 @@ export default function HomeScreen() {
     getTotalStreak,
     getStreakForHabit,
   } = useHabits();
-  const { isSubscribed } = useSubscription();
   const { userName } = useUser();
-  const [showPro, setShowPro] = useState(false);
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
 
@@ -60,11 +54,7 @@ export default function HomeScreen() {
   ).length;
 
   const handleAddHabit = () => {
-    if (!isSubscribed && habits.length >= FREE_HABIT_LIMIT) {
-      setShowPro(true);
-    } else {
-      router.push("/add-habit");
-    }
+    router.push("/add-habit");
   };
 
   const handleEditHabit = (habit: Habit) => {
@@ -108,20 +98,6 @@ export default function HomeScreen() {
                 {userName ? userName : "StreakFlow"}
               </Text>
             </View>
-            {!isSubscribed && (
-              <Pressable
-                onPress={() => setShowPro(true)}
-                style={[
-                  styles.proBadge,
-                  { backgroundColor: colors.primary + "22", borderRadius: 20 },
-                ]}
-              >
-                <Feather name="star" size={14} color={colors.primary} />
-                <Text style={[styles.proBadgeText, { color: colors.primary }]}>
-                  Pro
-                </Text>
-              </Pressable>
-            )}
           </View>
 
           <View
@@ -290,36 +266,9 @@ export default function HomeScreen() {
                 ))}
               </View>
             )}
-
-            {!isSubscribed && habits.length >= FREE_HABIT_LIMIT && (
-              <Pressable
-                onPress={() => setShowPro(true)}
-                style={[
-                  styles.limitBanner,
-                  {
-                    backgroundColor: colors.primary + "11",
-                    borderRadius: 14,
-                    borderColor: colors.primary + "33",
-                    borderWidth: 1,
-                  },
-                ]}
-              >
-                <Feather name="lock" size={16} color={colors.primary} />
-                <Text style={[styles.limitText, { color: colors.primary }]}>
-                  Upgrade to add unlimited habits
-                </Text>
-                <Feather name="arrow-right" size={14} color={colors.primary} />
-              </Pressable>
-            )}
           </View>
         </ScrollView>
       </View>
-
-      <ProBanner
-        visible={showPro}
-        onClose={() => setShowPro(false)}
-        mode="upgrade"
-      />
 
       <EditHabitModal
         visible={showEditModal}
@@ -352,14 +301,6 @@ const styles = StyleSheet.create({
   },
   greeting: { fontSize: 14, fontWeight: "400" },
   title: { fontSize: 28, fontWeight: "700" },
-  proBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-  },
-  proBadgeText: { fontSize: 13, fontWeight: "600" },
   streakCard: { padding: 24 },
   streakContent: {
     flexDirection: "row",
@@ -409,11 +350,4 @@ const styles = StyleSheet.create({
   emptyTitle: { fontSize: 18, fontWeight: "600", textAlign: "center" },
   emptySubtitle: { fontSize: 14, textAlign: "center", lineHeight: 20 },
   habitList: { gap: 12 },
-  limitBanner: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    padding: 14,
-  },
-  limitText: { flex: 1, fontSize: 14, fontWeight: "500" },
 });

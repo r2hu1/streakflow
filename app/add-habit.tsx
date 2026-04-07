@@ -15,8 +15,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 import { generateId, getTodayDate, type Habit } from "@/lib/database";
 import { useHabits } from "@/store/habitsStore";
-import { useSubscription } from "@/lib/revenuecat";
-import { ProBanner } from "@/modules/subscription";
 
 const ICONS = [
   "activity",
@@ -61,27 +59,18 @@ const ICONS = [
   "users",
 ];
 
-const FREE_HABIT_LIMIT = 3;
-
 export default function AddHabitScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { habits, addHabit } = useHabits();
-  const { isSubscribed } = useSubscription();
+  const { addHabit } = useHabits();
 
   const [name, setName] = useState("");
   const [selectedIcon, setSelectedIcon] = useState("activity");
   const [frequency, setFrequency] = useState<"daily" | "weekly">("daily");
-  const [showPro, setShowPro] = useState(false);
 
   const handleSave = async () => {
     if (!name.trim()) return;
-
-    if (!isSubscribed && habits.length >= FREE_HABIT_LIMIT) {
-      setShowPro(true);
-      return;
-    }
 
     const habit: Habit = {
       id: generateId(),
@@ -265,12 +254,6 @@ export default function AddHabitScreen() {
           </View>
         </ScrollView>
       </View>
-
-      <ProBanner
-        visible={showPro}
-        onClose={() => setShowPro(false)}
-        mode="upgrade"
-      />
     </>
   );
 }

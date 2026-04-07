@@ -20,9 +20,6 @@ export interface Completion {
 const HABITS_KEY = "streakflow_habits";
 const COMPLETIONS_KEY = "streakflow_completions";
 const FIRST_LAUNCH_KEY = "streakflow_first_launch";
-const USER_NAME_KEY = "streakflow_user_name";
-const ONBOARDING_COMPLETE_KEY = "streakflow_onboarding_complete";
-const TRIAL_START_KEY = "streakflow_trial_start";
 
 export function generateId(): string {
   return Date.now().toString() + Math.random().toString(36).substr(2, 9);
