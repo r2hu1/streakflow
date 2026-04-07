@@ -12,8 +12,6 @@ import React, { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { View } from "react-native";
-
 import { ErrorBoundary } from "@/modules/errors";
 import { HabitsProvider } from "@/store/habitsStore";
 import { useThemeStore } from "@/store/themeStore";
