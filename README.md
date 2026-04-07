@@ -119,4 +119,4 @@ The app includes three home screen widgets:
 
 ## License
 
-Private - All rights reserved
+MIT License - see [LICENSE](LICENSE) for details.
