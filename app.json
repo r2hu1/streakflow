@@ -9,13 +9,15 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#0A0A0A"
+      "backgroundColor": "#000000",
+      "icon": "./assets/images/icon.png"
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.rivro.streakflow.app"
+      "bundleIdentifier": "com.rivro.streakflow.app",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.rivro.streakflow.app"
@@ -36,8 +38,8 @@
               "label": "StreakFlow Heatmap",
               "minWidth": "160dp",
               "minHeight": "80dp",
-              "targetWidth": "4x2",
-              "targetHeight": "2x2",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
               "description": "View your habit consistency"
             },
             {
@@ -45,8 +47,8 @@
               "label": "StreakFlow Stats",
               "minWidth": "80dp",
               "minHeight": "80dp",
-              "targetWidth": "2x2",
-              "targetHeight": "2x2",
+              "targetCellWidth": 2,
+              "targetCellHeight": 2,
               "description": "Your current streak and today's progress"
             },
             {
@@ -54,8 +56,8 @@
               "label": "StreakFlow Tasks",
               "minWidth": "80dp",
               "minHeight": "80dp",
-              "targetWidth": "2x2",
-              "targetHeight": "3x2",
+              "targetCellWidth": 2,
+              "targetCellHeight": 3,
               "description": "See today's habits"
             }
           ]

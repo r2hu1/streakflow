@@ -1,5 +1,6 @@
-import React from 'react';
-import { FlexWidget, TextWidget } from 'react-native-android-widget';
+"use no memo";
+import React from "react";
+import { FlexWidget, TextWidget } from "react-native-android-widget";
 
 interface Task {
   id: string;
@@ -16,9 +17,9 @@ export function TasksWidget({ tasks }: TasksWidgetProps) {
   return (
     <FlexWidget
       style={{
-        height: 'match_parent',
-        width: 'match_parent',
-        backgroundColor: '#0A0A0A',
+        height: "match_parent",
+        width: "match_parent",
+        backgroundColor: "#0A0A0A",
         padding: 16,
         borderRadius: 16,
       }}
@@ -27,21 +28,21 @@ export function TasksWidget({ tasks }: TasksWidgetProps) {
         text="Today's Tasks"
         style={{
           fontSize: 14,
-          fontWeight: 'bold',
-          color: '#fafafa',
+          fontWeight: "bold",
+          color: "#fafafa",
           marginBottom: 12,
         }}
       />
 
-      <FlexWidget style={{ flexDirection: 'column', flexGap: 8 }}>
+      <FlexWidget style={{ flexDirection: "column", flexGap: 8 }}>
         {tasks.slice(0, 5).map((task) => (
           <FlexWidget
             key={task.id}
             style={{
-              flexDirection: 'row',
-              alignItems: 'center',
+              flexDirection: "row",
+              alignItems: "center",
               flexGap: 8,
-              backgroundColor: '#141414',
+              backgroundColor: "#141414",
               padding: 8,
               borderRadius: 8,
             }}
@@ -52,15 +53,17 @@ export function TasksWidget({ tasks }: TasksWidgetProps) {
                 height: 16,
                 borderRadius: 4,
                 borderWidth: 2,
-                borderColor: task.color || '#22D3EE',
-                backgroundColor: task.completed ? (task.color || '#22D3EE') : '#00000000',
+                borderColor: (task.color || "#22D3EE") as `#${string}`,
+                backgroundColor: (task.completed
+                  ? task.color || "#22D3EE"
+                  : "#00000000") as `#${string}`,
               }}
             />
             <TextWidget
               text={task.name}
               style={{
                 fontSize: 14,
-                color: task.completed ? '#737373' : '#fafafa',
+                color: task.completed ? "#737373" : "#fafafa",
                 // Note: textDecorationLine is NOT supported in TextWidget
               }}
             />
@@ -71,9 +74,9 @@ export function TasksWidget({ tasks }: TasksWidgetProps) {
             text={`+ ${tasks.length - 5} more tasks`}
             style={{
               fontSize: 12,
-              color: '#a3a3a3',
+              color: "#a3a3a3",
               marginTop: 4,
-              textAlign: 'center',
+              textAlign: "center",
             }}
           />
         )}
@@ -82,8 +85,8 @@ export function TasksWidget({ tasks }: TasksWidgetProps) {
             text="No habits for today"
             style={{
               fontSize: 14,
-              color: '#a3a3a3',
-              fontStyle: 'italic',
+              color: "#a3a3a3",
+              fontStyle: "italic",
             }}
           />
         )}
